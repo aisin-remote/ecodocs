@@ -13,6 +13,7 @@ class DestinationController extends Controller
      */
     public function index()
     {
+        $destination = Destination::orderBy('')
         return view('pages.website.destination.index');
     }
 

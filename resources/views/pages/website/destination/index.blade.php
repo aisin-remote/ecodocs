@@ -108,20 +108,26 @@
         </div>
     </div>
 @endsection
-<script src={{ asset('js/jquery-3.6.3.min.js') }} integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
-    crossorigin="anonymous"></script>
-<script>
-    $(document).ready(function() {
-        // initialize datatable
-        var table = $('#masterSkill').DataTable({
-            scrollX: true,
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/dataTables.bootstrap4.min.css') }}">
+@endpush
+@push('scripts')
+    <script src="{{ asset('js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src={{ asset('js/jquery-3.6.3.min.js') }} integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+        crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function() {
+            // initialize datatable
+            var table = $('#masterSkill').DataTable({
+                scrollX: true,
+            });
+
+            $('#addSkill').on('click', function() {
+                $("#addSkillCard").toggle();
+
+                $("#icon").html($("#addSkillCard").is(":visible") ? '<i class="ti ti-minus"></i>' :
+                    '<i class="ti ti-plus"></i>');
+            })
         });
-
-        $('#addSkill').on('click', function() {
-            $("#addSkillCard").toggle();
-
-            $("#icon").html($("#addSkillCard").is(":visible") ? '<i class="ti ti-minus"></i>' :
-                '<i class="ti ti-plus"></i>');
-        })
-    });
-</script>
+    </script>
+@endpush
