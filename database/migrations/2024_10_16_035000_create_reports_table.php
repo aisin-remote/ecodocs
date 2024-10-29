@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('destination_id')->constrained('destinations')->onDelete('cascade');
+            $table->string('license_plate');
             $table->timestamps();
         });
     }

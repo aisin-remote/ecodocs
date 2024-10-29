@@ -17,7 +17,7 @@
         @endif
         <div class="card shadow" id="addSkillCard" style="display: none">
             <div class="border-bottom title-part-padding">
-                <h3 class="card-title mb-0">Add Destination</h3>
+                <h3 class="card-title mb-0">Add destination</h3>
             </div>
             <div class="card-body">
                 <form action="" method="POST" class="mt-4 skillForm">
@@ -28,8 +28,8 @@
                         <div data-repeater-list="repeater-group">
                             <div data-repeater-item="" class="row mb-3">
                                 <div class="col-lg-11 col-sm-12">
-                                    <label class="mb-1">Destination</label>
-                                    <input type="text" class="form-control" placeholder="Destination Name" name="name"
+                                    <label class="mb-1">destination</label>
+                                    <input type="text" class="form-control" placeholder="destination Name" name="name"
                                         required>
                                 </div>
                                 <div class="col-lg-1 col-sm-12">
@@ -44,7 +44,7 @@
                         <button type="button" data-repeater-create=""
                             class="btn btn-primary waves-effect waves-light mb-3">
                             <div class="d-flex align-items-center">
-                                Add Destination
+                                Add destination
                                 <i class="ti ti-circle-plus ms-1 fs-5"></i>
                             </div>
                         </button>
@@ -67,7 +67,7 @@
                 <div class="row">
                     <div class="col-9">
                         <h4 class="fw-5">
-                            Registered Destination
+                            Registered destination
                         </h4>
                     </div>
                     <div class="col-3 text-end">
@@ -108,26 +108,20 @@
         </div>
     </div>
 @endsection
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/dataTables.bootstrap4.min.css') }}">
-@endpush
-@push('scripts')
-    <script src="{{ asset('js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src={{ asset('js/jquery-3.6.3.min.js') }} integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
-        crossorigin="anonymous"></script>
-    <script>
-        $(document).ready(function() {
-            // initialize datatable
-            var table = $('#masterSkill').DataTable({
-                scrollX: true,
-            });
-
-            $('#addSkill').on('click', function() {
-                $("#addSkillCard").toggle();
-
-                $("#icon").html($("#addSkillCard").is(":visible") ? '<i class="ti ti-minus"></i>' :
-                    '<i class="ti ti-plus"></i>');
-            })
+<script src={{ asset('js/jquery-3.6.3.min.js') }} integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+    crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function() {
+        // initialize datatable
+        var table = $('#masterSkill').DataTable({
+            scrollX: true,
         });
-    </script>
-@endpush
+
+        $('#addSkill').on('click', function() {
+            $("#addSkillCard").toggle();
+
+            $("#icon").html($("#addSkillCard").is(":visible") ? '<i class="ti ti-minus"></i>' :
+                '<i class="ti ti-plus"></i>');
+        })
+    });
+</script>
