@@ -20,7 +20,7 @@
                 <h3 class="card-title mb-0">Add destination</h3>
             </div>
             <div class="card-body">
-                <form action="" method="POST" class="mt-4 skillForm">
+                <form action="{{ route('destination.store') }}" method="POST" class="mt-4 skillForm">
                     @csrf
                     @method('POST')
                     <input type="hidden" name="origin" id="origin">
@@ -108,20 +108,22 @@
         </div>
     </div>
 @endsection
-<script src={{ asset('js/jquery-3.6.3.min.js') }} integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
-    crossorigin="anonymous"></script>
-<script>
-    $(document).ready(function() {
-        // initialize datatable
-        var table = $('#masterSkill').DataTable({
-            scrollX: true,
+@push('scripts')
+    <script src={{ asset('js/jquery-3.6.3.min.js') }} integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+        crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function() {
+            // initialize datatable
+            var table = $('#masterSkill').DataTable({
+                scrollX: true,
+            });
+
+            $('#addSkill').on('click', function() {
+                $("#addSkillCard").toggle();
+
+                $("#icon").html($("#addSkillCard").is(":visible") ? '<i class="ti ti-minus"></i>' :
+                    '<i class="ti ti-plus"></i>');
+            })
         });
-
-        $('#addSkill').on('click', function() {
-            $("#addSkillCard").toggle();
-
-            $("#icon").html($("#addSkillCard").is(":visible") ? '<i class="ti ti-minus"></i>' :
-                '<i class="ti ti-plus"></i>');
-        })
-    });
-</script>
+    </script>
+@endpush

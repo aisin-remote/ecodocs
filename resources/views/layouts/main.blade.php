@@ -15,7 +15,7 @@
     <meta name="keywords" content="Mordenize" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <!--  Favicon -->
-    <link rel="shortcut icon" type="image/png" href="{{ asset('images/favicon.ico') }}" />
+    <link rel="shortcut icon" type="image/png" href="{{ asset('dist/images/logos/ecodocs-logo-mini.png') }}" />
     <!-- Owl Carousel -->
     <link href="{{ asset('css/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/bootstrap4-toggle.min.css') }}" rel="stylesheet">
@@ -31,11 +31,11 @@
 <body>
     <!-- Preloader -->
     <div class="preloader">
-        <img src="{{ asset('images/favicon.ico') }}" alt="loader" class="lds-ripple img-fluid" />
+        <img src="{{ asset('dist/images/logos/ecodocs-logo.png') }}" alt="loader" class="lds-ripple img-fluid" />
     </div>
     <!-- Preloader -->
     <div class="preloader">
-        <img src="{{ asset('images/favicon.ico') }}" alt="loader" class="lds-ripple img-fluid" />
+        <img src="{{ asset('dist/images/logos/ecodocs-logo.png') }}" alt="loader" class="lds-ripple img-fluid" />
     </div>
     <!--  Body Wrapper -->
     <div class="page-wrapper" id="main-wrapper" data-theme="blue_theme" data-layout="vertical" data-sidebartype="full"
@@ -64,6 +64,7 @@
 
     <!--  Customizer -->
     <!--  Import Js Files -->
+    @stack('scripts')
     <script src={{ asset('dist/libs/jquery/dist/jquery.min.js') }}></script>
     <script src={{ asset('dist/libs/jquery-ui/dist/jquery-ui.min.js') }}></script>
     <script src={{ asset('dist/libs/simplebar/dist/simplebar.min.js') }}></script>

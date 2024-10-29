@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Limbah;
 use App\Http\Requests\StoreLimbahRequest;
 use App\Http\Requests\UpdateLimbahRequest;
+use Illuminate\Http\Request;
 
 class LimbahController extends Controller
 {
@@ -13,7 +14,8 @@ class LimbahController extends Controller
      */
     public function index()
     {
-        return view('pages.website.limbah.index');
+        $limbah = Limbah::all(); // Mengambil semua data limbah
+        return view('pages.website.limbah.index', compact('limbah'));
     }
 
     /**
@@ -29,7 +31,21 @@ class LimbahController extends Controller
      */
     public function store(StoreLimbahRequest $request)
     {
-        //
+        $request->validate([
+            'repeater-group.*.code' => 'required|string|max:50',
+            'repeater-group.*.name' => 'required|string|max:255',
+        ]);
+
+        // Simpan setiap item dari repeater
+        foreach ($request->input('repeater-group') as $item) {
+            Limbah::create([
+                'code' => $item['code'],
+                'name' => $item['name'],
+            ]);
+        }
+
+        // Redirect atau response setelah penyimpanan sukses
+        return redirect()->back()->with('success', 'Waste data successfully saved.');
     }
 
     /**
@@ -37,30 +53,48 @@ class LimbahController extends Controller
      */
     public function show(Limbah $limbah)
     {
-        //
+        // 
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Limbah $limbah)
+    public function edit(Request $request, Limbah $limbah)
     {
-        //
+        $limbah = Limbah::findOrFail($request->id);
+        return response()->json($limbah);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateLimbahRequest $request, Limbah $limbah)
+    public function update(UpdateLimbahRequest $request, Limbah $limbah, $id)
     {
-        //
-    }
+        dd($request->all());
+        $validated = $request->validate([
+            'code' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+        ]);
 
+        $limbah = Limbah::findOrFail($id); // Menemukan data limbah berdasarkan ID
+        $limbah->update($validated); // Mengupdate data limbah
+
+        return response()->json(['message' => 'Limbah berhasil diperbarui!', 'data' => $limbah]);
+    }
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Limbah $limbah)
+    public function destroy(Limbah $limbah, $id)
     {
-        //
+        $limbah = Limbah::findOrFail($id); // Menemukan data limbah berdasarkan ID
+        $limbah->delete(); // Menghapus data limbah
+
+        return response()->json(['message' => 'Limbah berhasil dihapus!']);
+    }
+    public function getData(Request $request)
+    {
+        // Mengambil semua data limbah
+        $limbah = Limbah::all();
+        return response()->json($limbah); // Kembalikan data dalam format JSON
     }
 }
