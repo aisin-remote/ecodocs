@@ -22,12 +22,15 @@ use App\Http\Controllers\HomeController;
 Route::get('/', function () {
     return view('pages.auth.login');
 });
+
+// AUTH
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login.form');
 Route::post('/login-proses', [AuthController::class, 'login'])->name('login');
 Route::get('/register', [AuthController::class, 'registerForm'])->name('register.form');
 Route::post('/register-proses', [AuthController::class, 'register'])->name('register');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-//Dashboard
+//DASHBOARD
 Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
 
 // MASTER CRUD DESTINATION
@@ -35,9 +38,9 @@ Route::middleware('role:admin')->prefix('destination')->name('destination.')->gr
     Route::get('/', [DestinationController::class, 'index'])->name('index');
     Route::get('/data', [DestinationController::class, 'getData'])->name('data');
     Route::post('/store', [DestinationController::class, 'store'])->name('store');
-    Route::get('/edit', [DestinationController::class, 'edit'])->name('edit');
-    Route::post('/update', [DestinationController::class, 'update'])->name('update');
-    Route::post('/delete', [DestinationController::class, 'destroy'])->name('destroy');
+    Route::get('/edit/{id}', [DestinationController::class, 'edit'])->name('edit');
+    Route::put('/update/{id}', [DestinationController::class, 'update'])->name('update');
+    Route::delete('/delete/{id}', [DestinationController::class, 'destroy'])->name('destroy');
 });
 // MASTER CRUD LIMBAH
 Route::middleware('role:admin')->prefix('limbah')->name('limbah.')->group(function () {
@@ -45,9 +48,16 @@ Route::middleware('role:admin')->prefix('limbah')->name('limbah.')->group(functi
     Route::get('/data', [LimbahController::class, 'getData'])->name('data');
     Route::post('/store', [LimbahController::class, 'store'])->name('store');
     Route::get('/edit/{id}', [LimbahController::class, 'edit'])->name('edit');
-    Route::post('/update/{id}', [LimbahController::class, 'update'])->name('update');
+    Route::put('/update/{id}', [LimbahController::class, 'update'])->name('update');
     Route::delete('/delete/{id}', [LimbahController::class, 'destroy'])->name('destroy');
 });
 
-
-Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+// CRUD REPORT 
+Route::middleware('role:admin')->prefix('report')->name('report.')->group(function () {
+    Route::get('/', [ReportController::class, 'index'])->name('index');
+    Route::get('/data', [ReportController::class, 'getData'])->name('data');
+    Route::post('/store', [ReportController::class, 'store'])->name('store');
+    Route::get('/edit/{id}', [ReportController::class, 'edit'])->name('edit');
+    Route::put('/update/{id}', [ReportController::class, 'update'])->name('update');
+    Route::delete('/delete/{id}', [ReportController::class, 'destroy'])->name('destroy');
+});

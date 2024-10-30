@@ -1,4 +1,5 @@
 @extends('layouts.main')
+@section('title', 'Report')
 
 @section('main')
     <div class="col-12 col-lg-12">
@@ -20,28 +21,28 @@
                 <h2 class="card-title mb-0">Create Report</h2>
             </div>
             <div class="card-body">
-                <form action="" method="POST" class="mt-4 skillForm">
+                <form action="{{ route('report.store') }}" method="POST" class="mt-4 skillForm"
+                    enctype="multipart/form-data">
                     @csrf
                     @method('POST')
                     <input type="hidden" name="origin" id="origin">
                     <div class="row">
                         <div class="col-6">
                             <div class="form-group mb-4">
-                                <label class="mr-sm-2" for="inlineFormCustomSelect">Select</label>
-                                <input list="browsers" name="browser" id="browser">
-                                <datalist class="form-select mr-sm-2" id="browsers">
-                                    <option selected>Choose...</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
-                                    <option value="3">Three</option>
-                                </datalist>
+                                <label class="mr-sm-2" for="destinationSelect">Select Destination</label>
+                                <select name="destination_id" id="destinationSelect" class="form-select">
+                                    <option selected disabled>Choose Destination...</option>
+                                    @foreach ($destination as $dest)
+                                        <option value="{{ $dest->id }}">{{ $dest->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-group">
-                                <label class="mb-1">Licence Plate</label>
-                                <input type="text" class="form-control" id="nametext" aria-describedby="name"
-                                    placeholder="Name">
+                                <label class="mb-1">License Plate</label>
+                                <input type="text" class="form-control" id="licensePlate" name="license_plate"
+                                    placeholder="License Plate" required>
                             </div>
                         </div>
                     </div>
@@ -51,29 +52,39 @@
                                 <div data-repeater-item="" class="row mb-3">
                                     <div class="col-lg-2 col-sm-12">
                                         <label class="mb-1">Waste Code</label>
-                                        <input type="text" class="form-control" placeholder="limbah Name" name="name"
-                                            required>
+                                        <select class="form-control waste-code" name="waste_code" required>
+                                            <option selected disabled>Choose Waste Code...</option>
+                                            @foreach ($limbah as $limbahItem)
+                                                <option value="{{ $limbahItem->code }}" data-name="{{ $limbahItem->name }}">
+                                                    {{ $limbahItem->code }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                     <div class="col-lg-3 col-sm-12">
                                         <label class="mb-1">Waste Name</label>
-                                        <input type="text" class="form-control" placeholder="limbah Name" name="name"
-                                            required>
+                                        <input type="text" class="form-control waste-name" name="waste_name"
+                                            placeholder="Waste Name" required readonly>
                                     </div>
                                     <div class="col-lg-1 col-sm-12">
                                         <label class="mb-1">Qty</label>
-                                        <input type="text" class="form-control" placeholder="18" name="name" required>
+                                        <input type="number" class="form-control" placeholder="0" name="quantity" required>
                                     </div>
                                     <div class="col-lg-1 col-sm-12">
-                                        <label class="mb-1">Uom</label>
-                                        <input type="text" class="form-control" placeholder="Kg" name="name" required>
+                                        <label class="mb-1">UOM</label>
+                                        <select class="form-control" name="unit" required>
+                                            <option value="" selected disabled>Choose</option>
+                                            <option value="Kg">Kg</option>
+                                            <option value="Pcs">Pcs</option>
+                                        </select>
                                     </div>
                                     <div class="col-lg-2 col-sm-12">
                                         <label class="mb-1">Description</label>
-                                        <textarea type="text" class="form-control" name="name" required></textarea>
+                                        <textarea class="form-control" name="description"></textarea>
                                     </div>
                                     <div class="col-lg-2 col-sm-12">
                                         <label class="mb-1">Photo (Optional)</label>
-                                        <input type="File" class="form-control" placeholder="Kg" name="name" required>
+                                        <input type="file" class="form-control" name="photo"
+                                            accept=".jpg, .jpeg, .png, .gif, .bmp">
                                     </div>
                                     <div class="col-lg-1 col-sm-12">
                                         <div class="mb-2" style="color: white">ccc</div>
@@ -87,7 +98,7 @@
                             <button type="button" data-repeater-create=""
                                 class="btn btn-primary waves-effect waves-light mb-3">
                                 <div class="d-flex align-items-center">
-                                    Add limbah
+                                    Add Waste
                                     <i class="ti ti-circle-plus ms-1 fs-5"></i>
                                 </div>
                             </button>
@@ -128,24 +139,12 @@
                 <table class="table text-nowrap align-middle mb-0" id="masterSkill" style="width:100%">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th class="text-center">Edit</th>
+                            <th>Destination</th>
+                            <th class="text-center">License Plate</th>
+                            <th class="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                <span class="actual">cek</span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-icon btn-warning edit" id="edit"><i
-                                        class="far fa-edit"></i></button>
-                                <button class="btn btn-icon btn-success save mb-1" style="display: none"><i
-                                        class="fas fa-check"></i></button>
-                                <button class="btn btn-icon btn-danger cancel" style="display: none"><i
-                                        class="fas fa-times"></i></button>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -155,6 +154,17 @@
 <script src={{ asset('js/jquery-3.6.3.min.js') }} integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
     crossorigin="anonymous"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const wasteCodeSelects = document.querySelectorAll('.waste-code');
+        wasteCodeSelects.forEach(select => {
+            select.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const wasteNameInput = this.closest('.row').querySelector('.waste-name');
+                wasteNameInput.value = selectedOption.getAttribute('data-name') ||
+                    ''; // Mengisi waste name sesuai pilihan
+            });
+        });
+    });
     $(document).ready(function() {
         // initialize datatable
         var table = $('#masterSkill').DataTable({
@@ -167,5 +177,105 @@
             $("#icon").html($("#addSkillCard").is(":visible") ? '<i class="ti ti-minus"></i>' :
                 '<i class="ti ti-plus"></i>');
         })
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        const textareas = document.querySelectorAll('textarea');
+
+        textareas.forEach(textarea => {
+            // Fungsi untuk mengatur tinggi textarea
+            const adjustHeight = (element) => {
+                element.style.height = 'auto'; // Reset height
+                element.style.height = element.scrollHeight + 'px'; // Set height to scrollHeight
+            };
+
+            // Sesuaikan tinggi pada input awal
+            adjustHeight(textarea);
+
+            // Tambahkan event listener untuk input dan change
+            textarea.addEventListener('input', function() {
+                adjustHeight(this);
+            });
+
+            textarea.addEventListener('change', function() {
+                adjustHeight(this);
+            });
+        });
+    });
+    $(document).ready(function() {
+        // Initialize DataTable
+        var table = $('#masterSkill').DataTable();
+
+        // Fetch data dari tabel limbah
+        function fetchData() {
+            $.ajax({
+                url: '{{ route('report.data') }}',
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    table.clear().draw();
+                    $.each(data, function(index, item) {
+                        table.row.add([
+                            item.destination_id,
+                            item.license_plate,
+                            '<div class="text-center">' +
+                            '<button class="btn btn-icon btn-warning edit me-2" data-id="' +
+                            item.id + '"><i class="ti ti-edit"></i></button>' +
+                            '<button class="btn btn-icon btn-danger delete" data-id="' +
+                            item.id + '"><i class="ti ti-trash"></i></button>' +
+                            '</div>'
+                        ]).draw();
+                    });
+                }
+            });
+        }
+
+        fetchData();
+
+        // Open edit modal and load data into form
+        $(document).on('click', '.edit', function() {
+            var id = $(this).data('id');
+            $.ajax({
+                url: '{{ route('limbah.edit', '') }}/' + id,
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    $('#editId').val(data.id);
+                    $('#editCode').val(data.code);
+                    $('#editName').val(data.name);
+
+                    // Set action attribute on the form with the ID included
+                    $('#editForm').attr('action', '{{ route('limbah.update', '') }}/' +
+                        data
+                        .id);
+                    $('#editModal').modal('show');
+                }
+            });
+        });
+
+        // Delete data
+        $('#masterSkill').on('click', '.delete', function() {
+            var id = $(this).data('id');
+            if (confirm('Are you sure you want to delete this record?')) {
+                $.ajax({
+                    url: '{{ route('limbah.destroy', '') }}/' + id,
+                    method: 'POST',
+                    data: {
+                        _method: 'DELETE',
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.success);
+                            fetchData();
+                        } else {
+                            alert('Error: ' + response.error);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('An error occurred: ' + error);
+                    }
+                });
+            }
+        });
     });
 </script>

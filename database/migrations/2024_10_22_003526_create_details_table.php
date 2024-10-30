@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignId('limbah_id')->constrained('limbahs')->onDelete('cascade');
             $table->integer('qty');
             $table->string('unit');
-            $table->string('desc');
-            $table->text('picture');
+            $table->string('desc')->nullable();
+            $table->text('picture')->nullable();
             $table->timestamps();
         });
     }

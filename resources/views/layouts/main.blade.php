@@ -4,7 +4,7 @@
 
 <head>
     <!--  Title -->
-    <title>Mordenize</title>
+    <title>@yield('title')</title>
     <!--  Required Meta Tag -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -22,7 +22,7 @@
     <link rel="stylesheet" href={{ asset('dist/libs/select2/dist/css/select2.min.css') }}>
     <link href="{{ asset('css/iziToast.min.css') }}" rel="stylesheet">
     <!-- Core Css -->
-    <link id="themeColors" rel="stylesheet" href={{ asset('dist/css/style-purple.min.css') }} />
+    <link id="themeColors" rel="stylesheet" href={{ asset('dist/css/style-green.min.css') }} />
     <script src="{{ asset('js/highcharts.js') }}"></script>
     <script src={{ asset('dist/libs/moment-js/moment.js') }}></script>
 

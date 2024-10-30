@@ -48,7 +48,7 @@
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2"
-                                        style="background-color: #763ebd; border-color: #763ebd;">
+                                        style="background-color: #028D3A; border-color: #028D3A;">
                                         Sign In
                                     </button>
                                     <div class="d-flex align-items-center justify-content-center">

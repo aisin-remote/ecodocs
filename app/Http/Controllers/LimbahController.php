@@ -70,7 +70,7 @@ class LimbahController extends Controller
      */
     public function update(UpdateLimbahRequest $request, Limbah $limbah, $id)
     {
-        dd($request->all());
+        // dd($request->all());
         $validated = $request->validate([
             'code' => 'required|string|max:255',
             'name' => 'required|string|max:255',
@@ -79,17 +79,21 @@ class LimbahController extends Controller
         $limbah = Limbah::findOrFail($id); // Menemukan data limbah berdasarkan ID
         $limbah->update($validated); // Mengupdate data limbah
 
-        return response()->json(['message' => 'Limbah berhasil diperbarui!', 'data' => $limbah]);
+        return redirect()->back()->with('success', 'Waste data successfully saved.');
     }
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Limbah $limbah, $id)
     {
-        $limbah = Limbah::findOrFail($id); // Menemukan data limbah berdasarkan ID
-        $limbah->delete(); // Menghapus data limbah
+        try {
+            $limbah = Limbah::findOrFail($id);
+            $limbah->delete();
 
-        return response()->json(['message' => 'Limbah berhasil dihapus!']);
+            return response()->json(['success' => 'Limbah deleted successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete Limbah.'], 500);
+        }
     }
     public function getData(Request $request)
     {

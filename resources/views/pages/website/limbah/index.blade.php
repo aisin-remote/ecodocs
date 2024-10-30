@@ -1,4 +1,5 @@
 @extends('layouts.main')
+@section('title', 'limbah')
 
 @section('main')
     <div class="col-12 col-lg-12">
@@ -102,20 +103,19 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit Limbah</h5>
+                    <h5 class="modal-title" id="editModalLabel">Edit Destination</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editForm" method="POST">
+                    <!-- Form update langsung melalui POST ke route update -->
+                    <form action="{{ route('destination.update', $destination->id ?? '') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="id" id="editId">
+                        @method('PUT')
+                        <input type="hidden" name="id" value="{{ $destination->id ?? '' }}">
                         <div class="mb-3">
-                            <label for="editCode" class="form-label">Code</label>
-                            <input type="text" class="form-control" id="editCode" name="code" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editName" class="form-label">Limbah</label>
-                            <input type="text" class="form-control" id="editName" name="name" required>
+                            <label for="editDestination" class="form-label">Destination</label>
+                            <input type="text" class="form-control" id="editDestination" name="name"
+                                value="{{ $destination->name ?? '' }}" required>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -126,6 +126,7 @@
             </div>
         </div>
     </div>
+
 @endsection
 
 @push('scripts')
@@ -149,92 +150,66 @@
                     method: 'GET',
                     dataType: 'json',
                     success: function(data) {
-                        // Clear tabel sebelumnya
                         table.clear().draw();
-
-                        // Tambahkan data ke tabel
                         $.each(data, function(index, item) {
                             table.row.add([
                                 item.code,
                                 item.name,
                                 '<div class="text-center">' +
                                 '<button class="btn btn-icon btn-warning edit me-2" data-id="' +
-                                item.id +
-                                '"><i class="ti ti-edit"></i></button>' +
+                                item.id + '"><i class="ti ti-edit"></i></button>' +
                                 '<button class="btn btn-icon btn-danger delete" data-id="' +
                                 item.id + '"><i class="ti ti-trash"></i></button>' +
                                 '</div>'
                             ]).draw();
                         });
-                        $('.edit').on('click', function() {
-                            var id = $(this).data('id');
-                            // Ambil data berdasarkan ID
-                            $.ajax({
-                                url: '{{ route('limbah.edit', '') }}/' + id,
-                                method: 'GET',
-                                dataType: 'json',
-                                success: function(data) {
-                                    // Isi form dengan data lama
-                                    $('#editId').val(data.id); // ID limbah
-                                    $('#editCode').val(data.code); // Code limbah
-                                    $('#editName').val(data.name); // Nama limbah
-                                    // Tampilkan modal
-                                    $('#editModal').modal('show');
-                                }
-                            });
-                        });
                     }
                 });
             }
 
-            // Panggil fungsi fetchData pada saat load
             fetchData();
 
-            // Edit data
-            $('#masterSkill').on('click', '.edit', function() {
+            // Open edit modal and load data into form
+            $(document).on('click', '.edit', function() {
                 var id = $(this).data('id');
                 $.ajax({
                     url: '{{ route('limbah.edit', '') }}/' + id,
                     method: 'GET',
                     dataType: 'json',
                     success: function(data) {
-                        $('#editId').val(data.id); // ID limbah
-                        $('#editCode').val(data.code); // Code limbah
-                        $('#editName').val(data.name); // Nama limbah
-                        $('#editModal').modal('show'); // Tampilkan modal
+                        $('#editId').val(data.id);
+                        $('#editCode').val(data.code);
+                        $('#editName').val(data.name);
+
+                        // Set action attribute on the form with the ID included
+                        $('#editForm').attr('action', '{{ route('limbah.update', '') }}/' + data
+                            .id);
+                        $('#editModal').modal('show');
                     }
                 });
             });
 
-            // Update data
-            $('#editForm').on('submit', function(e) {
-                e.preventDefault();
-                var id = $('#editId').val();
-                $.ajax({
-                    url: '{{ route('limbah.update', '') }}/' + id,
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        $('#editModal').modal('hide');
-                        fetchData();
-                        alert(response.success);
-                    }
-                });
-            });
-
-            // Hapus data
+            // Delete data
             $('#masterSkill').on('click', '.delete', function() {
                 var id = $(this).data('id');
                 if (confirm('Are you sure you want to delete this record?')) {
                     $.ajax({
                         url: '{{ route('limbah.destroy', '') }}/' + id,
-                        method: 'DELETE',
+                        method: 'POST',
+                        data: {
+                            _method: 'DELETE',
+                            _token: '{{ csrf_token() }}'
+                        },
                         success: function(response) {
-                            fetchData();
-                            alert(response.success);
+                            if (response.success) {
+                                alert(response.success);
+                                fetchData();
+                            } else {
+                                alert('Error: ' + response.error);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            alert('An error occurred: ' + error);
                         }
                     });
                 }

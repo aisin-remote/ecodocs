@@ -71,23 +71,33 @@ class DestinationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDestinationRequest $request, Destination $destination)
+    public function update(UpdateDestinationRequest $request, Destination $destination, $id)
     {
+        // dd($request->all());
+        // Validasi input
         $validated = $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
-        $limbah = Limbah::findOrFail($id); // Menemukan data limbah berdasarkan ID
-        $limbah->update($validated); // Mengupdate data limbah
+        // Mencari data destination berdasarkan ID dan memperbarui
+        $destination = Destination::findOrFail($id);
+        $destination->update($validated);
 
-        return response()->json(['message' => 'Limbah berhasil diperbarui!', 'data' => $limbah]);
+        return redirect()->back()->with('success', 'Destination data successfully updated.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Destination $destination)
+    public function destroy(Destination $destination, $id)
     {
-        //
+        try {
+            $destination = Destination::findOrFail($id);
+            $destination->delete();
+
+            return response()->json(['success' => 'Destination deleted successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete Destination.'], 500);
+        }
     }
 }

@@ -10,6 +10,10 @@ class Destination extends Model
     use HasFactory;
 
     protected $table = 'destinations';
-    
+
     protected $guarded = ['id'];
+    public function reports()
+    {
+        return $this->hasMany(Report::class, 'destination_id');
+    }
 }
