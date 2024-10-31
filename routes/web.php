@@ -60,4 +60,5 @@ Route::middleware('role:admin')->prefix('report')->name('report.')->group(functi
     Route::get('/edit/{id}', [ReportController::class, 'edit'])->name('edit');
     Route::put('/update/{id}', [ReportController::class, 'update'])->name('update');
     Route::delete('/delete/{id}', [ReportController::class, 'destroy'])->name('destroy');
+    Route::get('/report/{id}', [ReportController::class, 'show'])->name('show');
 });

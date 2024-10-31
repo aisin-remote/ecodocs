@@ -86,9 +86,14 @@ class ReportController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(report $report)
+    public function show(report $report, $id)
     {
-        //
+        // dd($id);
+        $detail = Details::with('limbah')->find($id);
+        if (!$detail) {
+            return response()->json(['error' => 'Detail not found'], 404);
+        }
+        return response()->json($detail);
     }
 
     /**

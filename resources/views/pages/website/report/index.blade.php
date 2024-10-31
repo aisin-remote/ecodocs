@@ -150,6 +150,38 @@
             </div>
         </div>
     </div>
+    <!-- Modal Show Details -->
+    <div class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="showModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="showModalLabel">Details Information</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <h6>Limbah Information</h6>
+                        <p><strong>Limbah:</strong> <span id="limbah"></span></p>
+                        <p><strong>Quantity:</strong> <span id="qty"></span> <span id="unit"></span></p>
+                        <p><strong>Description:</strong> <span id="desc"></span></p>
+                        <p><strong>Picture:</strong></p>
+                        <div>
+                            <img id="picture" src="" alt="Picture"
+                                style="width: 100%; max-height: 300px; object-fit: contain;">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 @endsection
 <script src={{ asset('js/jquery-3.6.3.min.js') }} integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
     crossorigin="anonymous"></script>
@@ -218,6 +250,8 @@
                             item.destination_id,
                             item.license_plate,
                             '<div class="text-center">' +
+                            '<button class="btn btn-icon btn-info show me-2" data-id="' +
+                            item.id + '"><i class="ti ti-eye"></i></button>' +
                             '<button class="btn btn-icon btn-warning edit me-2" data-id="' +
                             item.id + '"><i class="ti ti-edit"></i></button>' +
                             '<button class="btn btn-icon btn-danger delete" data-id="' +
@@ -248,6 +282,29 @@
                         data
                         .id);
                     $('#editModal').modal('show');
+                }
+            });
+        });
+        $(document).on('click', '.show', function() {
+            let detailId = $(this).data('id');
+            console.log(detailId);
+
+            $.ajax({
+                url: '{{ route('report.show', '') }}/' +
+                    detailId, // Ganti dengan URL endpoint API Anda
+                method: 'GET',
+                success: function(data) {
+                    $('#limbah').text(data.limbah.name);
+                    $('#qty').text(data.qty);
+                    $('#unit').text(data.unit);
+                    $('#desc').text(data.desc);
+                    $('#picture').attr('src', data.picture ? `/storage/${data.picture}` :
+                        '/path/to/default.jpg');
+
+                    $('#showModal').modal('show');
+                },
+                error: function() {
+                    alert('Failed to fetch details.');
                 }
             });
         });
