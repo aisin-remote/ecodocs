@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', 'Report')
+@section('title', 'Edit Report')
 
 @section('main')
     <div class="col-12 col-lg-12">
@@ -18,10 +18,10 @@
         @endif
         <div class="card shadow" id="addSkillCard" style="display: none">
             <div class="border-bottom title-part-padding">
-                <h2 class="card-title mb-0">Create Report</h2>
+                <h2 class="card-title mb-0">Edit Report</h2>
             </div>
             <div class="card-body">
-                <form action="{{ route('report.store') }}" method="POST" class="mt-4 skillForm"
+                <form action="{{ route('report.update', ['id' => $report->id]) }}" method="POST" class="mt-4 skillForm"
                     enctype="multipart/form-data">
                     @csrf
                     @method('POST')
@@ -122,7 +122,7 @@
                 <div class="row">
                     <div class="col-9">
                         <h4 class="fw-5">
-                            Reports
+                            Edit Reports
                         </h4>
                     </div>
                     <div class="col-3 text-end">
@@ -130,59 +130,13 @@
                             <span class="rounded-3 pe-2" id="icon">
                                 <i class="ti ti-plus"></i>
                             </span>
-                            <span class="d-none d-sm-inline-block">Create Report</span>
+                            <span class="d-none d-sm-inline-block">Edit Report</span>
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="card-body p-3">
-                <table class="table text-nowrap align-middle mb-0" id="masterSkill" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>Destination</th>
-                            <th class="text-center">License Plate</th>
-                            <th class="text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
         </div>
     </div>
-    <!-- Modal Show Details -->
-    <div class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="showModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="showModalLabel">Details Information</h5>
-                </div>
-                <div class="modal-body">
-                    <div class="container">
-                        <table class="table table-bordered text-nowrap align-middle mb-0" id="masterSkill"
-                            style="width:100%">
-                            <thead>
-                                <tr>
-                                    <th>Limbah</th>
-                                    <th class="text-center">Quantity</th>
-                                    <th class="text-center">Description</th>
-                                    <th class="text-center">Picture</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Data will be populated dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 @endsection
 @push('scripts')
     <script src={{ asset('js/jquery-3.6.3.min.js') }} integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="

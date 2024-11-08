@@ -59,4 +59,12 @@ class AuthController extends Controller
         // Redirect ke halaman setelah registrasi
         return redirect()->route('login.form')->with('success', 'Registration successful!');
     }
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate(); // Menghapus sesi pengguna
+        $request->session()->regenerateToken(); // Mengamankan token CSRF baru
+
+        return redirect('/login'); // Redirect ke halaman login atau halaman lain
+    }
 }

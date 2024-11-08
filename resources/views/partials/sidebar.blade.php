@@ -27,32 +27,34 @@
                 <!-- =================== -->
                 <!-- Dashboard -->
                 <!-- =================== -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link has-arrow" href="#" aria-expanded="false">
-                        <span class="d-flex">
-                            <i class="ti ti-adjustments-alt"></i>
-                        </span>
-                        <span class="hide-menu">Master</span>
-                    </a>
-                    <ul aria-expanded="false" class="collapse first-level">
-                        <li class="sidebar-item">
-                            <a href="/limbah" class="sidebar-link">
-                                <div class="round-16 d-flex align-items-center justify-content-center">
-                                    <i class="ti ti-circle"></i>
-                                </div>
-                                <span class="hide-menu">Limbah/Waste</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/destination" class="sidebar-link">
-                                <div class="round-16 d-flex align-items-center justify-content-center">
-                                    <i class="ti ti-circle"></i>
-                                </div>
-                                <span class="hide-menu">Destination</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                @if (Auth::user()->role == 'admin')
+                    <li class="sidebar-item">
+                        <a class="sidebar-link has-arrow" href="#" aria-expanded="false">
+                            <span class="d-flex">
+                                <i class="ti ti-adjustments-alt"></i>
+                            </span>
+                            <span class="hide-menu">Master</span>
+                        </a>
+                        <ul aria-expanded="false" class="collapse first-level">
+                            <li class="sidebar-item">
+                                <a href="/limbah" class="sidebar-link">
+                                    <div class="round-16 d-flex align-items-center justify-content-center">
+                                        <i class="ti ti-circle"></i>
+                                    </div>
+                                    <span class="hide-menu">Limbah/Waste</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/destination" class="sidebar-link">
+                                    <div class="round-16 d-flex align-items-center justify-content-center">
+                                        <i class="ti ti-circle"></i>
+                                    </div>
+                                    <span class="hide-menu">Destination</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
                 <li class="sidebar-item">
                     <a class="sidebar-link" href="/report" aria-expanded="false">
                         <span>

@@ -53,12 +53,12 @@ Route::middleware('role:admin')->prefix('limbah')->name('limbah.')->group(functi
 });
 
 // CRUD REPORT 
-Route::middleware('role:admin')->prefix('report')->name('report.')->group(function () {
+Route::middleware('auth')->prefix('report')->name('report.')->group(function () {
     Route::get('/', [ReportController::class, 'index'])->name('index');
     Route::get('/data', [ReportController::class, 'getData'])->name('data');
     Route::post('/store', [ReportController::class, 'store'])->name('store');
     Route::get('/edit/{id}', [ReportController::class, 'edit'])->name('edit');
     Route::put('/update/{id}', [ReportController::class, 'update'])->name('update');
     Route::delete('/delete/{id}', [ReportController::class, 'destroy'])->name('destroy');
-    Route::get('/report/{id}', [ReportController::class, 'show'])->name('show');
+    Route::get('/report/{report_id}', [ReportController::class, 'show'])->name('show');
 });

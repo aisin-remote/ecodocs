@@ -22,8 +22,24 @@ class ReportController extends Controller
     }
     public function getData()
     {
-        $report = report::all();
-        return response()->json($report);
+        $report = Report::with('details')
+            ->get()
+            ->groupBy('id'); // Assuming 'id' is the primary key for reports
+
+        // Create a response array to avoid duplicate report_ids
+        $response = [];
+
+        foreach ($report as $reportGroup) {
+            $response[] = [
+                'report_id' => $reportGroup->first()->id, // Use the first report's id
+                'destination_id' => $reportGroup->first()->destination_id,
+                'license_plate' => $reportGroup->first()->license_plate,
+                'details' => $reportGroup->map(function ($report) {
+                    return $report->details; // Return all associated details
+                })->flatten() // Flatten the details
+            ];
+        }
+        return response()->json($response);
     }
 
     /**
@@ -86,22 +102,33 @@ class ReportController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(report $report, $id)
+    public function show(report $report, $report_id)
     {
-        // dd($id);
-        $detail = Details::with('limbah')->find($id);
-        if (!$detail) {
-            return response()->json(['error' => 'Detail not found'], 404);
+        // dd($report_id);
+        // Fetch details for the given report_id
+        $report = Report::with(['details.limbah'])->find($report_id);
+
+        if (!$report) {
+            return response()->json(['error' => 'Report not found'], 404);
         }
-        return response()->json($detail);
+
+        return response()->json($report);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(report $report)
+    public function edit($id)
     {
-        //
+        // Fetch the report by ID
+        $report = Report::findOrFail($id);
+
+        // Fetch other data needed for the form, like destinations and limbah
+        $destination = Destination::all();
+        $limbah = Limbah::all();
+
+        // Return the view with the report and other data
+        return view('pages.website.report.edit', compact('report', 'destination', 'limbah'));
     }
 
     /**
