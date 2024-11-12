@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\AuthController;
 use App\Models\Report;
 use Illuminate\Support\Facades\Route;
@@ -57,8 +58,18 @@ Route::middleware('auth')->prefix('report')->name('report.')->group(function () 
     Route::get('/', [ReportController::class, 'index'])->name('index');
     Route::get('/data', [ReportController::class, 'getData'])->name('data');
     Route::post('/store', [ReportController::class, 'store'])->name('store');
-    Route::get('/edit/{id}', [ReportController::class, 'edit'])->name('edit');
+    Route::get('/edit/{report_id}', [ReportController::class, 'edit'])->name('edit');
     Route::put('/update/{id}', [ReportController::class, 'update'])->name('update');
-    Route::delete('/delete/{id}', [ReportController::class, 'destroy'])->name('destroy');
-    Route::get('/report/{report_id}', [ReportController::class, 'show'])->name('show');
+    Route::delete('/delete/{report_id}', [ReportController::class, 'destroy'])->name('destroy');
+    Route::get('/report/{id}', [ReportController::class, 'show'])->name('show');
+});
+
+Route::middleware('admin')->prefix('approval')->name('approval.')->group(function () {
+    Route::get('/', [ApprovalController::class, 'index'])->name('index');
+    Route::get('/data', [ApprovalController::class, 'getData'])->name('data');
+    Route::post('/approve/{id}', [ApprovalController::class, 'approve'])->name('approve');
+    Route::get('/reject/{id}', [ApprovalController::class, 'reject'])->name('reject');
+    Route::put('/update/{id}', [ApprovalController::class, 'update'])->name('update');
+    Route::delete('/delete/{id}', [ApprovalController::class, 'destroy'])->name('destroy');
+    Route::get('/report/{id}', [ApprovalController::class, 'show'])->name('show');
 });

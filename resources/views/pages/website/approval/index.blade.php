@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', 'Report')
+@section('title', 'Approval')
 
 @section('main')
     <div class="col-12 col-lg-12">
@@ -18,10 +18,10 @@
         @endif
         <div class="card shadow" id="addSkillCard" style="display: none">
             <div class="border-bottom title-part-padding">
-                <h2 class="card-title mb-0">Create Report</h2>
+                <h2 class="card-title mb-0">List Approval</h2>
             </div>
             <div class="card-body">
-                <form action="{{ route('report.store') }}" method="POST" class="mt-4 skillForm"
+                {{-- <form action="{{ route('report.store') }}" method="POST" class="mt-4 skillForm"
                     enctype="multipart/form-data">
                     @csrf
                     @method('POST')
@@ -112,7 +112,7 @@
                             Submit
                         </button>
                     </div>
-                </form>
+                </form> --}}
             </div>
         </div>
     </div>
@@ -122,16 +122,16 @@
                 <div class="row">
                     <div class="col-9">
                         <h4 class="fw-5">
-                            Reports
+                            List Approval
                         </h4>
                     </div>
                     <div class="col-3 text-end">
-                        <button class="btn btn-primary px-4 py-2" id="addSkill">
+                        {{-- <button class="btn btn-primary px-4 py-2" id="addSkill">
                             <span class="rounded-3 pe-2" id="icon">
                                 <i class="ti ti-plus"></i>
                             </span>
                             <span class="d-none d-sm-inline-block">Create Report</span>
-                        </button>
+                        </button> --}}
                     </div>
                 </div>
             </div>
@@ -183,6 +183,38 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="showModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="showModalLabel">Details Information</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <table class="table table-bordered text-nowrap align-middle mb-0" id="masterSkill"
+                            style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Limbah</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-center">Description</th>
+                                    <th class="text-center">Picture</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 @endsection
 @push('scripts')
@@ -190,67 +222,6 @@
         crossorigin="anonymous"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Menangani perubahan pada waste-code dropdown
-            const wasteCodeSelects = document.querySelectorAll('.waste-code');
-            wasteCodeSelects.forEach(select => {
-                select.addEventListener('change', function() {
-                    const selectedOption = this.options[this.selectedIndex];
-                    const wasteNameInput = this.closest('.row').querySelector('.waste-name');
-                    wasteNameInput.value = selectedOption.getAttribute('data-name') ||
-                        ''; // Mengisi waste name sesuai pilihan
-                });
-            });
-
-            // Menangani penambahan form baru
-            const addWasteButton = document.querySelector('[data-repeater-create]');
-            if (addWasteButton) {
-                addWasteButton.addEventListener('click', function() {
-                    setTimeout(function() {
-                        // Setelah form baru ditambahkan, tambahkan event listener pada select baru
-                        const newWasteCodeSelect = document.querySelectorAll('.waste-code');
-                        const lastSelect = newWasteCodeSelect[newWasteCodeSelect.length - 1];
-                        lastSelect.addEventListener('change', function() {
-                            const selectedOption = this.options[this.selectedIndex];
-                            const wasteNameInput = this.closest('.row').querySelector(
-                                '.waste-name');
-                            wasteNameInput.value = selectedOption.getAttribute(
-                                'data-name') || ''; // Mengisi waste name sesuai pilihan
-                        });
-                    }, 0);
-                });
-            }
-
-            // Menangani submit form
-            const wasteForm = document.getElementById('wasteForm');
-            if (wasteForm) {
-                wasteForm.addEventListener('submit', function(e) {
-                    const wasteCodes = document.querySelectorAll('.waste-code');
-                    const wasteNames = document.querySelectorAll('.waste-name');
-                    const selectedWasteCodes = [];
-                    const selectedWasteNames = [];
-
-                    let duplicateFound = false;
-
-                    wasteCodes.forEach((wasteCodeSelect, index) => {
-                        const wasteCode = wasteCodeSelect.value;
-                        const wasteName = wasteNames[index].value;
-
-                        // Cek jika waste-code dan waste-name sudah ada sebelumnya
-                        if (selectedWasteCodes.includes(wasteCode) && selectedWasteNames.includes(
-                                wasteName)) {
-                            duplicateFound = true;
-                        } else {
-                            selectedWasteCodes.push(wasteCode);
-                            selectedWasteNames.push(wasteName);
-                        }
-                    });
-
-                    if (duplicateFound) {
-                        e.preventDefault(); // Hentikan proses submit
-                        alert('Anda tidak dapat memilih limbah yang sama.');
-                    }
-                });
-            }
 
             // Initialize DataTable
             var table = $('#masterSkill').DataTable({
@@ -265,25 +236,33 @@
 
             const textareas = document.querySelectorAll('textarea');
             textareas.forEach(textarea => {
+                // Fungsi untuk mengatur tinggi textarea
                 const adjustHeight = (element) => {
-                    element.style.height = 'auto';
-                    element.style.height = element.scrollHeight + 'px';
+                    element.style.height = 'auto'; // Reset height
+                    element.style.height = element.scrollHeight + 'px'; // Set height to scrollHeight
                 };
 
+                // Sesuaikan tinggi pada input awal
                 adjustHeight(textarea);
 
+                // Tambahkan event listener untuk input dan change
                 textarea.addEventListener('input', function() {
+                    adjustHeight(this);
+                });
+
+                textarea.addEventListener('change', function() {
                     adjustHeight(this);
                 });
             });
 
-            // Kode AJAX untuk mengambil data laporan
+            // Kode AJAX untuk mengambil data
             $.ajax({
-                url: '{{ route('report.data') }}', // Ganti dengan route yang sesuai
+                url: '{{ route('approval.data') }}',
                 method: 'GET',
                 dataType: 'json',
                 success: function(data) {
-                    console.log(data);
+                    console.log(data); // Periksa apakah destination_name ada di log
+
                     table.clear().draw();
 
                     const addedReports = {};
@@ -292,65 +271,151 @@
                         if (!addedReports[report.report_id]) {
                             addedReports[report.report_id] = true;
 
-                            const reportDetails = report.details;
-                            const firstDetail = reportDetails.length > 0 ? reportDetails[0] :
+                            const firstDetail = report.details.length > 0 ? report.details[0] :
                                 null;
 
                             table.row.add([
-                                report.destination_name,
-                                '<span class="text-center">' + report.license_plate +
-                                '</span>',
+                                report
+                                .destination_name, // Pastikan ini sesuai dengan JSON
+                                report.license_plate,
                                 '<div class="text-center">' +
-                                '<button class="btn btn-icon btn-info show me-2" data-id="' +
+                                // Tombol See Detail
+                                '<button class="btn btn-icon btn-info see-detail me-2" data-id="' +
                                 (firstDetail ? firstDetail.id : '') +
-                                '" data-report-id="' + report.report_id +
-                                '"><i class="ti ti-eye"></i></button>' +
-                                '<button class="btn btn-icon btn-warning edit me-2" data-id="' +
+                                '" data-report-id="' +
+                                report.report_id +
+                                '"><i class="fa fa-eye"></i></button>' +
+                                // Tombol Approve dengan ikon Font Awesome
+                                '<button class="btn btn-icon btn-success approve me-2" data-id="' +
                                 (firstDetail ? firstDetail.id : '') +
-                                '" data-report-id="' + report.report_id +
-                                '"><i class="ti ti-edit"></i></button>' +
-                                '<button class="btn btn-icon btn-danger delete" data-id="' +
+                                '" data-report-id="' +
+                                report.report_id +
+                                '"><i class="fa fa-check"></i></button>' +
+                                // Tombol Reject dengan ikon silang Font Awesome
+                                '<button class="btn btn-icon btn-danger reject" data-id="' +
                                 (firstDetail ? firstDetail.id : '') +
-                                '" data-report-id="' + report.report_id +
-                                '"><i class="ti ti-trash"></i></button>' +
+                                '"><i class="fa fa-times"></i></button>' +
                                 '</div>'
                             ]).draw();
-                        }
-                    });
-
-                    // Event listener untuk tombol Edit
-                    $(document).on('click', '.edit', function() {
-                        const reportId = $(this).data('report-id');
-                        window.location.href = 'report/edit/' + reportId;
-                    });
-
-                    // Event listener untuk tombol Delete
-                    $(document).on('click', '.delete', function() {
-                        const reportId = $(this).data('report-id');
-                        if (confirm('Are you sure you want to delete this report?')) {
-                            $.ajax({
-                                url: 'report/delete/' + reportId,
-                                method: 'DELETE',
-                                headers: {
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
-                                        'content')
-                                },
-                                success: function(response) {
-                                    alert('Report deleted successfully');
-                                    table.row($(this).parents('tr')).remove()
-                                        .draw();
-                                },
-                                error: function(xhr, status, error) {
-                                    console.error("Failed to delete the report:",
-                                        error);
-                                    alert("Failed to delete the report.");
-                                }
-                            });
                         }
                     });
                 },
                 error: function(xhr, status, error) {
                     console.error("An error occurred:", error);
+                }
+            });
+
+
+
+            // Open edit modal and load data into form
+            $(document).on('click', '.edit', function() {
+                var id = $(this).data('id');
+                $.ajax({
+                    url: '{{ route('limbah.edit', '') }}/' + id,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#editId').val(data.id);
+                        $('#editCode').val(data.code);
+                        $('#editName').val(data.name);
+
+                        // Set action attribute on the form with the ID included
+                        $('#editForm').attr('action', '{{ route('limbah.update', '') }}/' +
+                            data.id);
+                        $('#editModal').modal('show');
+                    }
+                });
+            });
+
+            $(document).on('click', '.show', function() {
+                const reportId = $(this).data('report-id'); // Ambil report_id dari data atribut
+
+                console.log(reportId); // Debugging: Pastikan reportId ada
+
+                if (!reportId) {
+                    console.error("Report ID is missing!");
+                    alert("Report ID is missing!");
+                    return; // Jika reportId tidak ada, hentikan eksekusi AJAX
+                }
+
+                // Pastikan URL sesuai dengan route yang benar
+                $.ajax({
+                    url: '{{ route('report.show', '') }}/' + reportId, // Pastikan URL valid
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        // Clear previous data in the modal table
+                        $('#masterSkill tbody').empty();
+
+                        // Check if the response contains any details
+                        if (data.error) {
+                            $('#masterSkill tbody').append(`
+            <tr>
+                <td colspan="4" class="text-center">No details found.</td>
+            </tr>
+        `);
+                        } else {
+                            console.log(data); // Debugging: Lihat data yang diterima
+
+                            // Loop through the details and append them to the modal table
+                            $.each(data.details, function(index, detail) {
+                                $('#masterSkill tbody').append(`
+                        <tr>
+                            <td>${detail.limbah ? detail.limbah.name : 'N/A'}</td>
+                            <td class="text-center">${detail.qty} ${detail.unit}</td>
+                            <td class="text-center">${detail.desc}</td>
+                            <td class="text-center">
+                                <img src="${detail.picture_}" alt="Picture" style="width: 100px; height: auto;">
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-danger delete" data-id="${detail.id}">
+                                    <i class="ti ti-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        `);
+                            });
+                        }
+
+                        // Show the modal
+                        $('#showModal').modal('show');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("An error occurred:", error); // Tangani error
+                        alert("Could not fetch details. Please try again.");
+                    }
+                });
+            });
+
+            // Hide modal and clean up when it's closed
+            $('#showModal').on('hidden.bs.modal', function() {
+                $('#masterSkill tbody').empty(); // Clear the table
+            });
+
+
+            // Delete data
+            $('#masterSkill').on('click', '.delete', function() {
+                var id = $(this).data('id');
+                if (confirm('Are you sure you want to delete this record?')) {
+                    $.ajax({
+                        url: '{{ route('limbah.destroy', '') }}/' + id,
+                        method: 'POST',
+                        data: {
+                            _method: 'DELETE',
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                alert(response.success);
+                                fetchData();
+                            } else {
+                                alert('Error: ' + response.error);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            alert('An error occurred: ' + error);
+                        }
+                    });
                 }
             });
         });

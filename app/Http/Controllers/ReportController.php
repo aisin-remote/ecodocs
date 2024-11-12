@@ -22,7 +22,7 @@ class ReportController extends Controller
     }
     public function getData()
     {
-        $report = Report::with('details')
+        $report = Report::with(['details', 'destination'])
             ->get()
             ->groupBy('id'); // Assuming 'id' is the primary key for reports
 
@@ -31,12 +31,13 @@ class ReportController extends Controller
 
         foreach ($report as $reportGroup) {
             $response[] = [
-                'report_id' => $reportGroup->first()->id, // Use the first report's id
+                'report_id' => $reportGroup->first()->id, // Menggunakan id dari report pertama
                 'destination_id' => $reportGroup->first()->destination_id,
+                'destination_name' => $reportGroup->first()->destination->name, // Tambahkan nama destination
                 'license_plate' => $reportGroup->first()->license_plate,
                 'details' => $reportGroup->map(function ($report) {
-                    return $report->details; // Return all associated details
-                })->flatten() // Flatten the details
+                    return $report->details; // Mengambil semua detail terkait
+                })->flatten() // Menggabungkan detail
             ];
         }
         return response()->json($response);
@@ -118,17 +119,18 @@ class ReportController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
+    public function edit($report_id)
     {
+        // dd($report_id);
         // Fetch the report by ID
-        $report = Report::findOrFail($id);
+        $report = Report::findOrFail($report_id);
 
         // Fetch other data needed for the form, like destinations and limbah
         $destination = Destination::all();
         $limbah = Limbah::all();
 
         // Return the view with the report and other data
-        return view('pages.website.report.edit', compact('report', 'destination', 'limbah'));
+        return view('pages.website.report.edit', compact('report', 'destination', 'limbah'))->render();;
     }
 
     /**
@@ -142,8 +144,13 @@ class ReportController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(report $report)
+    public function destroy($id)
     {
-        //
+        $report = Report::findOrFail($id);
+        if ($report->delete()) {
+            return response()->json(['success' => 'Report deleted successfully']);
+        } else {
+            return response()->json(['error' => 'Failed to delete report'], 500);
+        }
     }
 }
