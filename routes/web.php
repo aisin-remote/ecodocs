@@ -59,9 +59,9 @@ Route::middleware('auth')->prefix('report')->name('report.')->group(function () 
     Route::get('/data', [ReportController::class, 'getData'])->name('data');
     Route::post('/store', [ReportController::class, 'store'])->name('store');
     Route::get('/edit/{report_id}', [ReportController::class, 'edit'])->name('edit');
-    Route::put('/update/{id}', [ReportController::class, 'update'])->name('update');
+    Route::put('/update/{report_id}', [ReportController::class, 'update'])->name('update');
     Route::delete('/delete/{report_id}', [ReportController::class, 'destroy'])->name('destroy');
-    Route::get('/report/{id}', [ReportController::class, 'show'])->name('show');
+    Route::get('/report/{report_id}', [ReportController::class, 'show'])->name('show');
 });
 
 Route::middleware('admin')->prefix('approval')->name('approval.')->group(function () {

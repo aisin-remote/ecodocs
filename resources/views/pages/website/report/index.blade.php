@@ -2,6 +2,7 @@
 @section('title', 'Report')
 
 @section('main')
+
     <div class="col-12 col-lg-12">
         @if (session()->has('success'))
             <div class="alert alert-success alert-dismissible bg-success text-white border-0 fade show" role="alert">
@@ -30,10 +31,12 @@
                         <div class="col-6">
                             <div class="form-group mb-4">
                                 <label class="mr-sm-2" for="destinationSelect">Select Destination</label>
-                                <select name="destination_id" id="destinationSelect" class="form-select">
+                                <select name="destination_id" id="destinationSelect" class="form-select" required>
                                     <option selected disabled>Choose Destination...</option>
                                     @foreach ($destination as $dest)
-                                        <option value="{{ $dest->id }}">{{ $dest->name }}</option>
+                                        <option value="{{ $dest->id }}"
+                                            {{ old('destination_id') == $dest->id ? 'selected' : '' }}>{{ $dest->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -42,7 +45,7 @@
                             <div class="form-group">
                                 <label class="mb-1">License Plate</label>
                                 <input type="text" class="form-control" id="licensePlate" name="license_plate"
-                                    placeholder="License Plate" required>
+                                    placeholder="License Plate" value="{{ old('license_plate') }}" required>
                             </div>
                         </div>
                     </div>

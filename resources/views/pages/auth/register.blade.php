@@ -7,6 +7,7 @@
     <title>Register Ecodocs</title>
     <link rel="shortcut icon" type="image/png" href="{{ asset('dist/images/logos/ecodocs-logo-mini.png') }}" />
     <link rel="stylesheet" href="{{ asset('dist/css/style.min.css') }}" />
+    <link href="{{ asset('css/iziToast.min.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -60,6 +61,26 @@
     </div>
     <script src="{{ asset('dist/libs/jquery/dist/jquery.min.js') }}"></script>
     <script src="{{ asset('dist/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('js/iziToast.min.js') }}"></script>
+    @if (session('success'))
+        <script>
+            iziToast.success({
+                title: 'Success',
+                message: '{{ session('success') }}',
+                position: 'topRight'
+            });
+        </script>
+    @endif
+
+    @if ($errors->any())
+        <script>
+            iziToast.error({
+                title: 'Error',
+                message: '{{ $errors->first() }}',
+                position: 'topRight'
+            });
+        </script>
+    @endif
 </body>
 
 </html>

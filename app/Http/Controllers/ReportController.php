@@ -121,9 +121,10 @@ class ReportController extends Controller
      */
     public function edit($report_id)
     {
-        // dd($report_id);
-        // Fetch the report by ID
-        $report = Report::findOrFail($report_id);
+
+        // Fetch the report by ID   
+        $report = Report::with(['destination', 'details.limbah'])->findOrFail($report_id);
+        // dd($report);
 
         // Fetch other data needed for the form, like destinations and limbah
         $destination = Destination::all();
@@ -144,7 +145,7 @@ class ReportController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($report_id)
     {
         $report = Report::findOrFail($id);
         if ($report->delete()) {
