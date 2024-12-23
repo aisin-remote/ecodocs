@@ -2,7 +2,6 @@
 @section('title', 'Report')
 
 @section('main')
-
     <div class="col-12 col-lg-12">
         @if (session()->has('success'))
             <div class="alert alert-success alert-dismissible bg-success text-white border-0 fade show" role="alert">
@@ -70,7 +69,8 @@
                                     </div>
                                     <div class="col-lg-1 col-sm-12">
                                         <label class="mb-1">Qty</label>
-                                        <input type="number" class="form-control" placeholder="0" name="quantity" required>
+                                        <input type="number" class="form-control" placeholder="0" name="quantity"
+                                            min="0" step="0.01" required>
                                     </div>
                                     <div class="col-lg-1 col-sm-12">
                                         <label class="mb-1">UOM</label>
@@ -142,12 +142,67 @@
                 <table class="table text-nowrap align-middle mb-0" id="masterSkill" style="width:100%">
                     <thead>
                         <tr>
+                            <th>No</th>
                             <th>Destination</th>
                             <th>License Plate</th>
+                            <th>Status</th>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach ($reports as $report)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $report->destination->name }}</td>
+                                <td>{{ $report->license_plate }}</td>
+                                @php
+                                    $statusClasses = [
+                                        'Pending' => 'btn-warning',
+                                        'Approved' => 'btn-success',
+                                    ];
+
+                                    $attr = [
+                                        'Pending' => 'disabled',
+                                        'Approved' => '',
+                                    ];
+                                @endphp
+
+                                <td>
+                                    <span class="btn {{ $statusClasses[$report->status] ?? 'bg-secondary' }} btn-sm">
+                                        {{ $report->status }}
+                                    </span>
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                            data-target="#showModal" data-id="{{ $report->id }}">
+                                            <i class="ti ti-eye"></i>
+                                        </button>
+                                        @if ($report->status == 'Pending')
+                                            <a href="report/edit/{{ $report->id }}" class="btn btn-warning">
+                                                <i class="ti ti-pencil"></i>
+                                            </a>
+                                            <form action="{{ route('report.destroy', $report->id) }}" method="post"
+                                                class="delete-button">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger">
+                                                    <i class="ti ti-x"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+                                        @if ($report->status == 'Approved')
+                                            <button type="button" class="btn btn-dark" data-toggle="modal"
+                                                data-target="#showModal" data-id="{{ $report->id }}"
+                                                {{ $attr[$report->status] }}>
+                                                <i class="ti ti-printer"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -156,206 +211,172 @@
     <!-- Modal Show Details -->
     <div class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="showModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="showModalLabel">Details Information</h5>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-white" id="showModalLabel">Details Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="container">
-                        <table class="table table-bordered text-nowrap align-middle mb-0" id="masterSkill"
-                            style="width:100%">
-                            <thead>
-                                <tr>
-                                    <th>Limbah</th>
-                                    <th class="text-center">Quantity</th>
-                                    <th class="text-center">Description</th>
-                                    <th class="text-center">Picture</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Data will be populated dynamically -->
-                            </tbody>
-                        </table>
+                    <div class="card-group mb-4">
+                        <!-- Column -->
+                        <div class="card card-bg">
+                            <div class="card-body text-center text-white">
+                                <div class="pt-2">
+                                    <h4 class="fw-bolder text-white status">
+                                        -
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Column -->
+                    </div>
+                    <div class="modal-body mt-3">
+                        <div class="card card-danger p-3">
+                            <div class="row text-center">
+                                <div class="col-6"><code>Destination : </code>
+                                    <span id="destination">-</span>
+                                </div>
+                                <div class="col-6"><code>License Plate : </code>
+                                    <span id="licence_plate">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mb-4">Waste Details :</p>
+                        <div class="row" id="list"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- modal confirmation --}}
+    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content modal-filled bg-light-warning">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center text-warning">
+                        <i class="ti ti-alert-octagon fs-7"></i>
+                        <p class="mt-3">
+                            Are you sure you want to delete this record?
+                        </p>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- end of modal --}}
 
 @endsection
 @push('scripts')
     <script src={{ asset('js/jquery-3.6.3.min.js') }} integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
         crossorigin="anonymous"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Menangani perubahan pada waste-code dropdown
-            const wasteCodeSelects = document.querySelectorAll('.waste-code');
-            wasteCodeSelects.forEach(select => {
-                select.addEventListener('change', function() {
-                    const selectedOption = this.options[this.selectedIndex];
-                    const wasteNameInput = this.closest('.row').querySelector('.waste-name');
-                    wasteNameInput.value = selectedOption.getAttribute('data-name') ||
-                        ''; // Mengisi waste name sesuai pilihan
-                });
-            });
-
-            // Menangani penambahan form baru
-            const addWasteButton = document.querySelector('[data-repeater-create]');
-            if (addWasteButton) {
-                addWasteButton.addEventListener('click', function() {
-                    setTimeout(function() {
-                        // Setelah form baru ditambahkan, tambahkan event listener pada select baru
-                        const newWasteCodeSelect = document.querySelectorAll('.waste-code');
-                        const lastSelect = newWasteCodeSelect[newWasteCodeSelect.length - 1];
-                        lastSelect.addEventListener('change', function() {
-                            const selectedOption = this.options[this.selectedIndex];
-                            const wasteNameInput = this.closest('.row').querySelector(
-                                '.waste-name');
-                            wasteNameInput.value = selectedOption.getAttribute(
-                                'data-name') || ''; // Mengisi waste name sesuai pilihan
-                        });
-                    }, 0);
-                });
-            }
-
-            // Menangani submit form
-            const wasteForm = document.getElementById('wasteForm');
-            if (wasteForm) {
-                wasteForm.addEventListener('submit', function(e) {
-                    const wasteCodes = document.querySelectorAll('.waste-code');
-                    const wasteNames = document.querySelectorAll('.waste-name');
-                    const selectedWasteCodes = [];
-                    const selectedWasteNames = [];
-
-                    let duplicateFound = false;
-
-                    wasteCodes.forEach((wasteCodeSelect, index) => {
-                        const wasteCode = wasteCodeSelect.value;
-                        const wasteName = wasteNames[index].value;
-
-                        // Cek jika waste-code dan waste-name sudah ada sebelumnya
-                        if (selectedWasteCodes.includes(wasteCode) && selectedWasteNames.includes(
-                                wasteName)) {
-                            duplicateFound = true;
-                        } else {
-                            selectedWasteCodes.push(wasteCode);
-                            selectedWasteNames.push(wasteName);
-                        }
-                    });
-
-                    if (duplicateFound) {
-                        e.preventDefault(); // Hentikan proses submit
-                        alert('Anda tidak dapat memilih limbah yang sama.');
-                    }
-                });
-            }
-
-            // Initialize DataTable
-            var table = $('#masterSkill').DataTable({
-                scrollX: true,
-            });
-
+        $(document).ready(function() {
             $('#addSkill').on('click', function() {
                 $("#addSkillCard").toggle();
                 $("#icon").html($("#addSkillCard").is(":visible") ? '<i class="ti ti-minus"></i>' :
                     '<i class="ti ti-plus"></i>');
             });
 
-            const textareas = document.querySelectorAll('textarea');
-            textareas.forEach(textarea => {
-                const adjustHeight = (element) => {
-                    element.style.height = 'auto';
-                    element.style.height = element.scrollHeight + 'px';
-                };
+            $(document).on('change', '.waste-code', function() {
+                const selectedOption = $(this).find(':selected');
+                const wasteNameInput = $(this).closest('.row').find('.waste-name');
+                wasteNameInput.val(selectedOption.data('name') || ''); // Mengisi waste name sesuai pilihan
+            });
 
-                adjustHeight(textarea);
+            // Initialize DataTable
+            var table = $('#masterSkill').DataTable({
+                scrollX: true,
+            });
+            // Attach click event to your button
+            $('button[data-target="#showModal"]').on('click', function() {
+                const id = $(this).data('id');
+                let modalContent = ``;
 
-                textarea.addEventListener('input', function() {
-                    adjustHeight(this);
+                $.ajax({
+                    url: '/report/modal/' + id,
+                    type: 'GET',
+                    success: function(data) {
+                        console.log(data);
+                        // Populate modal fields dynamically
+                        $('#destination').text(data.destination.name);
+                        $('#licence_plate').text(data.license_plate);
+
+                        if (data.status == 'Pending') {
+                            $('.card-group').css('display', 'none');
+                            $('.card-bg').addClass('bg-warning');
+                            $('.card-bg').removeClass('bg-success');
+                        } else if (data.status == 'Approved') {
+                            $('.card-group').css('display',
+                                'block'); // Or 'flex', based on your layout needs
+                            $('.card-bg').addClass('bg-success');
+                            $('.card-bg').removeClass('bg-warning');
+                            $('.status').text(data.surat_jalan);
+                        }
+
+                        // Format details in card layout
+                        data.details.forEach((report) => {
+                            modalContent += `
+                            <div class="col-12 mb-3">
+                                <div class="border rounded p-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-dark me-2">${report.limbah.code}</span>
+                                            <h6 class="mb-0" style="font-weight: bold;">: ${report.limbah.name}</h6>
+                                        </div>
+                                        <span class="badge bg-primary">${report.qty} ${report.unit}</span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted d-block">Description:</small>
+                                        <p class="mb-0" style="font-size: 0.9rem; color: #555;">${report.desc || 'N/A'}</p>
+                                    </div>
+                                </div>
+                            </div>`;
+                        });
+
+                        $('#list').html(modalContent);
+
+                        // Show the modal
+                        $('#showModal').modal('show');
+                    },
+                    error: function(xhr) {
+                        console.error('Error loading appointment details:', xhr);
+                    }
                 });
             });
 
-            // Kode AJAX untuk mengambil data laporan
-            $.ajax({
-                url: '{{ route('report.data') }}', // Ganti dengan route yang sesuai
-                method: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    console.log(data);
-                    table.clear().draw();
+            var deleteForm; // Variable to store the form to be submitted
 
-                    const addedReports = {};
+            // Handle click on delete button
+            $('.delete-button').on('click', function(event) {
+                event.preventDefault(); // Prevent the default form submission
 
-                    $.each(data, function(index, report) {
-                        if (!addedReports[report.report_id]) {
-                            addedReports[report.report_id] = true;
+                // Store the form associated with the delete button
+                deleteForm = $(this).closest('form');
 
-                            const reportDetails = report.details;
-                            const firstDetail = reportDetails.length > 0 ? reportDetails[0] :
-                                null;
+                // Show the confirmation modal
+                $('#confirmationModal').modal('show');
+            });
 
-                            table.row.add([
-                                report.destination_name,
-                                '<span class="text-center">' + report.license_plate +
-                                '</span>',
-                                '<div class="text-center">' +
-                                '<button class="btn btn-icon btn-info show me-2" data-id="' +
-                                (firstDetail ? firstDetail.id : '') +
-                                '" data-report-id="' + report.report_id +
-                                '"><i class="ti ti-eye"></i></button>' +
-                                '<button class="btn btn-icon btn-warning edit me-2" data-id="' +
-                                (firstDetail ? firstDetail.id : '') +
-                                '" data-report-id="' + report.report_id +
-                                '"><i class="ti ti-edit"></i></button>' +
-                                '<button class="btn btn-icon btn-danger delete" data-id="' +
-                                (firstDetail ? firstDetail.id : '') +
-                                '" data-report-id="' + report.report_id +
-                                '"><i class="ti ti-trash"></i></button>' +
-                                '</div>'
-                            ]).draw();
-                        }
-                    });
-
-                    // Event listener untuk tombol Edit
-                    $(document).on('click', '.edit', function() {
-                        const reportId = $(this).data('report-id');
-                        window.location.href = 'report/edit/' + reportId;
-                    });
-
-                    // Event listener untuk tombol Delete
-                    $(document).on('click', '.delete', function() {
-                        const reportId = $(this).data('report-id');
-                        if (confirm('Are you sure you want to delete this report?')) {
-                            $.ajax({
-                                url: 'report/delete/' + reportId,
-                                method: 'DELETE',
-                                headers: {
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
-                                        'content')
-                                },
-                                success: function(response) {
-                                    alert('Report deleted successfully');
-                                    table.row($(this).parents('tr')).remove()
-                                        .draw();
-                                },
-                                error: function(xhr, status, error) {
-                                    console.error("Failed to delete the report:",
-                                        error);
-                                    alert("Failed to delete the report.");
-                                }
-                            });
-                        }
-                    });
-                },
-                error: function(xhr, status, error) {
-                    console.error("An error occurred:", error);
+            // Handle click on confirm delete button
+            $('#confirmDelete').on('click', function() {
+                if (deleteForm) {
+                    // Submit the stored form for deletion
+                    deleteForm.submit();
                 }
             });
+
         });
     </script>
 @endpush

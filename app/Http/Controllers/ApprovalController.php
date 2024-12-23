@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Report;
 use App\Models\Approval;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreApprovalRequest;
 use App\Http\Requests\UpdateApprovalRequest;
-use App\Models\Report;
 
 class ApprovalController extends Controller
 {
@@ -14,7 +16,9 @@ class ApprovalController extends Controller
      */
     public function index()
     {
-        return view('pages.website.approval.index');
+        $reports = Report::with(['details', 'destination'])->get();
+            
+        return view('pages.website.approval.index', compact('reports'));
     }
     public function getData()
     {
@@ -85,7 +89,28 @@ class ApprovalController extends Controller
     {
         //
     }
-    public function approve() {
-        
+    public function approve(Request $request) 
+    {
+        $surat_jalan = $request->surat_jalan;
+        $report_id = $request->report_id;
+
+        try {
+            DB::beginTransaction();
+
+            // update status and surat jalan
+            Report::where('id', $report_id)->update([
+                'status' => 'Approved',
+                'surat_jalan' => $surat_jalan
+            ]);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Documents Successfully Approved');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Failed to approve the report',
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 }

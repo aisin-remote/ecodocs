@@ -21,12 +21,12 @@
                 <h2 class="card-title mb-0">Edit Report</h2>
             </div>
             <div class="card-body">
-                <form action="{{ route('report.update', $report->id) }}" method="POST" class="mt-4 skillForm"
+                <form action="{{ route('report.update') }}" method="POST" class="mt-4 skillForm"
                     enctype="multipart/form-data">
                     @csrf
                     @method('PUT') <!-- Assuming you're updating an existing report -->
 
-                    <input type="hidden" name="origin" id="origin">
+                    <input type="hidden" name="report_id" value="{{ $report->id }}">
 
                     <div class="row">
                         <div class="col-6">
@@ -60,7 +60,7 @@
                                     <div data-repeater-item="" class="row mb-3">
                                         <div class="col-lg-2 col-sm-12">
                                             <label class="mb-1">Waste Code</label>
-                                            <select class="form-control waste-code" name="waste_code[]" required>
+                                            <select class="form-control waste-code" name="waste_code" required>
                                                 <option selected disabled>Choose Waste Code...</option>
                                                 @foreach ($limbah as $limbahItem)
                                                     <option value="{{ $limbahItem->code }}"
@@ -73,19 +73,20 @@
                                         </div>
                                         <div class="col-lg-3 col-sm-12">
                                             <label class="mb-1">Waste Name</label>
-                                            <input type="text" class="form-control waste-name" name="waste_name[]"
+                                            <input type="text" class="form-control waste-name" name="waste_name"
                                                 placeholder="Waste Name"
-                                                value="{{ old('waste_name.' . $key, $detail->limbah->name) }}"
-                                                required readonly>
+                                                value="{{ old('waste_name.' . $key, $detail->limbah->name) }}" required
+                                                readonly>
                                         </div>
                                         <div class="col-lg-1 col-sm-12">
                                             <label class="mb-1">Qty</label>
-                                            <input type="number" class="form-control" placeholder="0" name="quantity[]"
-                                                value="{{ old('quantity.' . $key, $detail->qty) }}" required>
+                                            <input type="number" class="form-control" placeholder="0" name="quantity"
+                                                value="{{ old('quantity.' . $key, $detail->qty) }}" required min="0"
+                                                step="0.01">
                                         </div>
                                         <div class="col-lg-1 col-sm-12">
                                             <label class="mb-1">UOM</label>
-                                            <select class="form-control" name="unit[]" required>
+                                            <select class="form-control" name="unit" required>
                                                 <option value="" selected disabled>Choose</option>
                                                 <option value="Kg"
                                                     {{ old('unit.' . $key, $detail->unit) == 'Kg' ? 'selected' : '' }}>Kg
@@ -97,11 +98,11 @@
                                         </div>
                                         <div class="col-lg-2 col-sm-12">
                                             <label class="mb-1">Description</label>
-                                            <textarea class="form-control" name="description[]">{{ old('description.' . $key, $detail->desc) }}</textarea>
+                                            <textarea class="form-control" name="description">{{ old('description.' . $key, $detail->desc) }}</textarea>
                                         </div>
                                         <div class="col-lg-2 col-sm-12">
                                             <label class="mb-1">Photo (Optional)</label>
-                                            <input type="file" class="form-control" name="photo[]"
+                                            <input type="file" class="form-control" name="photo"
                                                 accept=".jpg, .jpeg, .png, .gif, .bmp">
                                         </div>
                                         <div class="col-lg-1 col-sm-12">
@@ -133,7 +134,6 @@
                     </div>
                 </form>
 
-
             </div>
         </div>
     </div>
@@ -143,12 +143,13 @@
         crossorigin="anonymous"></script>
     <script>
         // Update Waste Name field when Waste Code is selected
-        document.querySelectorAll('.waste-code').forEach(function(select) {
-            select.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                const wasteNameField = this.closest('.row').querySelector('.waste-name');
-                wasteNameField.value = selectedOption.getAttribute('data-name');
+        $(document).ready(function() {
+
+            $(document).on('change', '.waste-code', function() {
+                const selectedOption = $(this).find(':selected');
+                const wasteNameInput = $(this).closest('.row').find('.waste-name');
+                wasteNameInput.val(selectedOption.data('name') || ''); // Mengisi waste name sesuai pilihan
             });
-        });
+        })
     </script>
 @endpush
