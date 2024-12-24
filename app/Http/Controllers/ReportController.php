@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StorereportRequest;
 use App\Http\Requests\UpdatereportRequest;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
@@ -21,17 +22,17 @@ class ReportController extends Controller
         $limbah = Limbah::all();
         $destination = Destination::all();
         $reports = Report::with(['details', 'destination'])->get();
-            
+
         return view('pages.website.report.index', compact('limbah', 'destination', 'reports'));
     }
 
     public function getReportData($id)
     {
         $reports = Report::with(['details.limbah', 'destination'])
-                        ->whereHas('details', function($query) use ($id) {
-                            $query->where('report_id', $id);
-                        })
-                        ->first();
+            ->whereHas('details', function ($query) use ($id) {
+                $query->where('report_id', $id);
+            })
+            ->first();
 
         return response()->json($reports);
     }
@@ -198,7 +199,7 @@ class ReportController extends Controller
             $report->delete();
 
             DB::commit();
-            return redirect()->back()->with('success','Report deleted successfully');
+            return redirect()->back()->with('success', 'Report deleted successfully');
         } catch (\Throwable $th) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Failed to delete report!');

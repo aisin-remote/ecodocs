@@ -23,17 +23,17 @@ use App\Http\Controllers\DestinationController;
 
 
 // AUTH
-Route::middleware(['guest'])->group(function () {
-    Route::get('/', function () {
-        return view('pages.auth.login');
-    });
-    
-    Route::get('/login', [AuthController::class, 'loginForm'])->name('login.form');
-    Route::post('/login-proses', [AuthController::class, 'login'])->name('login');
-    Route::get('/register', [AuthController::class, 'registerForm'])->name('register.form');
-    Route::post('/register-proses', [AuthController::class, 'register'])->name('register');
-    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/', function () {
+    return view('pages.auth.login');
 });
+
+Route::get('/login', [AuthController::class, 'loginForm'])->name('login.form');
+Route::post('/login-proses', [AuthController::class, 'login'])->name('login');
+Route::get('/register', [AuthController::class, 'registerForm'])->name('register.form');
+Route::post('/register-proses', [AuthController::class, 'register'])->name('register');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     // MASTER CRUD DESTINATION
@@ -45,7 +45,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::put('/update/{id}', [DestinationController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [DestinationController::class, 'destroy'])->name('destroy');
     });
-    
+
     // MASTER CRUD LIMBAH
     Route::prefix('limbah')->name('limbah.')->group(function () {
         Route::get('/', [LimbahController::class, 'index'])->name('index');
@@ -57,10 +57,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     });
 });
 
-Route::middleware(['auth'])->group(function () {    
+Route::middleware(['auth'])->group(function () {
     //DASHBOARD
     Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
-    
+
     // CRUD REPORT 
     Route::prefix('report')->name('report.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
