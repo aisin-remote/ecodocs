@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StorereportRequest;
 use App\Http\Requests\UpdatereportRequest;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
@@ -204,5 +205,18 @@ class ReportController extends Controller
             DB::rollBack();
             return redirect()->back()->with('error', 'Failed to delete report!');
         }
+    }
+    public function download($id)
+    {
+        // Ambil data report berdasarkan ID
+        $report = Report::findOrFail($id);
+
+        // Periksa apakah file ada
+        if (!$report->file || !Storage::exists('public/' . $report->file)) {
+            return redirect()->back()->with('error', 'File not found');
+        }
+
+        // Download file
+        return response()->download(storage_path('app/public/' . $report->file));
     }
 }

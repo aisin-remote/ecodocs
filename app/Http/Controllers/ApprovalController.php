@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReportExport;
 use App\Models\Report;
 use App\Models\Approval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreApprovalRequest;
 use App\Http\Requests\UpdateApprovalRequest;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ApprovalController extends Controller
 {
@@ -17,7 +19,7 @@ class ApprovalController extends Controller
     public function index()
     {
         $reports = Report::with(['details', 'destination'])->get();
-            
+
         return view('pages.website.approval.index', compact('reports'));
     }
     public function getData()
@@ -89,7 +91,7 @@ class ApprovalController extends Controller
     {
         //
     }
-    public function approve(Request $request) 
+    public function approve(Request $request)
     {
         $surat_jalan = $request->surat_jalan;
         $report_id = $request->report_id;
@@ -97,20 +99,26 @@ class ApprovalController extends Controller
         try {
             DB::beginTransaction();
 
-            // update status and surat jalan
-            Report::where('id', $report_id)->update([
+            // Ambil data report
+            $report = Report::with('details.limbah')->findOrFail($report_id);
+
+            // Buat file Excel
+            $filename = 'report_' . $report_id . '.xlsx';
+            $path = 'reports/' . $filename;
+            Excel::store(new ReportExport($report), 'public/' . $path);
+
+            // Update status, surat jalan, dan file
+            $report->update([
                 'status' => 'Approved',
-                'surat_jalan' => $surat_jalan
+                'surat_jalan' => $surat_jalan,
+                'file' => $path
             ]);
 
             DB::commit();
-            return redirect()->back()->with('success', 'Documents Successfully Approved');
+            return redirect()->back()->with('success', 'Document Successfully Approved and Excel File Generated');
         } catch (\Throwable $th) {
             DB::rollBack();
-            return response()->json([
-                'error' => 'Failed to approve the report',
-                'message' => $th->getMessage(),
-            ], 500);
+            return redirect()->back()->with('error', 'Failed to approve the report: ' . $th->getMessage());
         }
     }
 }

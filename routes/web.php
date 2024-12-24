@@ -70,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/update', [ReportController::class, 'update'])->name('update');
         Route::delete('/delete/{report_id}', [ReportController::class, 'destroy'])->name('destroy');
         Route::get('/report/{report_id}', [ReportController::class, 'show'])->name('show');
+        Route::get('reports/download/{report}', [ReportController::class, 'download'])->name('download');
     });
 
     Route::prefix('approval')->name('approval.')->group(function () {

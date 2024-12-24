@@ -193,11 +193,10 @@
                                             </form>
                                         @endif
                                         @if ($report->status == 'Approved')
-                                            <button type="button" class="btn btn-dark" data-toggle="modal"
-                                                data-target="#showModal" data-id="{{ $report->id }}"
+                                            <a href="{{ route('report.download', $report->id) }}" class="btn btn-dark"
                                                 {{ $attr[$report->status] }}>
                                                 <i class="ti ti-printer"></i>
-                                            </button>
+                                            </a>
                                         @endif
                                     </div>
                                 </td>
@@ -277,25 +276,26 @@
     </div>
 
     {{-- modal view document --}}
-    <div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel"
+    {{-- <div class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="showModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="viewModalLabel">View Document</h5>
+                    <h5 class="modal-title" id="showModalLabel">View Document</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <iframe id="pdfViewer" src="" width="100%" height="500px"></iframe>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <p>Click the button below to view the document:</p>
+                    <a href="#" id="fileLink" class="btn btn-primary" target="_blank">
+                        <i class="ti ti-file"></i> Open Document
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
+
     {{-- end of modal --}}
 
 @endsection
