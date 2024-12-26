@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Limbah;
-use App\Models\report;
+use App\Models\Report;
 use App\Models\Details;
 use App\Models\Destination;
 use Illuminate\Http\Request;
