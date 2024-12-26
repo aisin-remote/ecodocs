@@ -81,6 +81,12 @@
                                             {{ $attr[$report->status] }}>
                                             <i class="ti ti-check"></i>
                                         </button>
+                                        @if ($report->status == 'Approved')
+                                            <a href="{{ route('report.download', $report->id) }}" class="btn btn-dark"
+                                                {{ $attr[$report->status] }}>
+                                                <i class="ti ti-printer"></i>
+                                            </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
