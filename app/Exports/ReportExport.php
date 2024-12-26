@@ -37,10 +37,16 @@ class ReportExport implements FromView, WithStyles
                     'color' => ['argb' => '000000'], // Warna hitam
                 ],
             ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, // Rata tengah
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER, // Rata tengah vertikal
+            ],
         ]);
 
-        // Menyesuaikan teks menjadi rata tengah untuk header
-        $sheet->getStyle('A1:F3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        // Menyesuaikan tinggi baris untuk baris header agar lebih rapi
+        $sheet->getRowDimension('1')->setRowHeight(20);
+        $sheet->getRowDimension('2')->setRowHeight(20);
+        $sheet->getRowDimension('3')->setRowHeight(20);
 
         return [];
     }

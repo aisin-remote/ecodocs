@@ -10,7 +10,7 @@
             <td colspan="3">License Plate: {{ $report->license_plate ?? '-' }}</td>
         </tr>
         <tr>
-            <td colspan="3">Report ID: {{ $report->id ?? '-' }}</td>
+            <td colspan="3">Surat Jalan: {{ $report->surat_jalan ?? '-' }}</td>
             <td colspan="3">Date: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</td>
         </tr>
         <tr>
