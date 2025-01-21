@@ -25,7 +25,7 @@
     <link id="themeColors" rel="stylesheet" href={{ asset('dist/css/style-green.min.css') }} />
     <script src="{{ asset('js/highcharts.js') }}"></script>
     <script src={{ asset('dist/libs/moment-js/moment.js') }}></script>
-
+    @stack('styles')
 </head>
 
 <body>
@@ -48,7 +48,7 @@
             <!--  Header Start -->
             @include('partials.header')
             <!--  Header End -->
-            <div class="container-fluid">
+            <div class="container-fluid mw-100">
                 @yield('main')
             </div>
         </div>

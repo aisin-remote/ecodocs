@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReportExport;
 use App\Models\Limbah;
 use App\Models\Report;
 use App\Models\Details;
@@ -207,16 +208,27 @@ class ReportController extends Controller
         }
     }
     public function download($id)
-    {
-        // Ambil data report berdasarkan ID
-        $report = Report::findOrFail($id);
+{
+    // Ambil data report berdasarkan ID
+    $report = Report::with(['approver', 'details.limbah'])->findOrFail($id);
 
-        // Periksa apakah file ada
-        if (!$report->file || !Storage::exists('public/' . $report->file)) {
-            return redirect()->back()->with('error', 'File not found');
-        }
+    // Template Excel file path
+    $templatePath = storage_path('app/public/templates/FIMBKA.xlsx');
 
-        // Download file
-        return response()->download(storage_path('app/public/' . $report->file));
+    // Output Excel file path
+    $fileName = 'report_' . $report->surat_jalan . '.xlsx';
+    $outputPath = storage_path('app/public/reports/' . $fileName);
+    $dbFilePath = 'reports/' . $fileName; // Path untuk disimpan di database
+
+    // Periksa apakah file sudah ada atau tidak
+    if (!Storage::exists('public/' . $dbFilePath)) {
+        // Jika file belum ada, ekspor data ke Excel
+        $export = new ReportExport($report, $templatePath);
+        $export->exportToFile($outputPath);
     }
+
+    // Unduh file hasil ekspor
+    return response()->download($outputPath)->deleteFileAfterSend(true); // Menghapus file setelah diunduh
+}
+
 }

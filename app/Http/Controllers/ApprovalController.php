@@ -9,7 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreApprovalRequest;
 use App\Http\Requests\UpdateApprovalRequest;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ApprovalController extends Controller
 {
@@ -92,33 +94,28 @@ class ApprovalController extends Controller
         //
     }
     public function approve(Request $request)
-    {
-        $surat_jalan = $request->surat_jalan;
-        $report_id = $request->report_id;
+{
+    $approved_by = auth()->id();
+    $surat_jalan = $request->surat_jalan;
+    $report_id = $request->report_id;
 
-        try {
-            DB::beginTransaction();
+    try {
+        DB::beginTransaction();
+        // Ambil data report beserta detail
+        $report = Report::with('details.limbah')->findOrFail($report_id);
 
-            // Ambil data report
-            $report = Report::with('details.limbah')->findOrFail($report_id);
+        // Update status report
+        $report->update([
+            'approve_id' => $approved_by,
+            'status' => 'Approved',
+            'surat_jalan' => $surat_jalan,
+        ]);
+        DB::commit();
 
-            // Buat file Excel
-            $filename = 'report_' . $report_id . '.xlsx';
-            $path = 'reports/' . $filename;
-            Excel::store(new ReportExport($report), 'public/' . $path);
-
-            // Update status, surat jalan, dan file
-            $report->update([
-                'status' => 'Approved',
-                'surat_jalan' => $surat_jalan,
-                'file' => $path
-            ]);
-
-            DB::commit();
-            return redirect()->back()->with('success', 'Document Successfully Approved and Excel File Generated');
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return redirect()->back()->with('error', 'Failed to approve the report: ' . $th->getMessage());
-        }
+        return redirect()->back()->with('success', 'Document Successfully Approved');
+    } catch (\Throwable $th) {
+        DB::rollBack();
+        return redirect()->back()->with('error', 'Failed to approve the report: ' . $th->getMessage());
     }
+}
 }

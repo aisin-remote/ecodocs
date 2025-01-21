@@ -1,6 +1,15 @@
 @extends('layouts.main')
 @section('title', 'Report')
+@push('styles')
+<style>.full-width {
+    width: 100% !important;
+}
 
+.transition-width {
+    transition: width 0.3s ease-in-out;
+}</style>    
+
+@endpush
 @section('main')
     <div class="col-12 col-lg-12">
         @if (session()->has('success'))
@@ -62,12 +71,12 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-lg-3 col-sm-12">
+                                    <div class="col-lg-2 col-sm-12">
                                         <label class="mb-1">Waste Name</label>
                                         <input type="text" class="form-control waste-name" name="waste_name"
                                             placeholder="Waste Name" required readonly>
                                     </div>
-                                    <div class="col-lg-1 col-sm-12">
+                                    <div class="col-lg-2 col-sm-12">
                                         <label class="mb-1">Qty</label>
                                         <input type="number" class="form-control" placeholder="0" name="quantity"
                                             min="0" step="0.01" required>
@@ -400,4 +409,24 @@
 
         });
     </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const contentWrapper = document.querySelector('.col-12.col-lg-12');
+        const sidebarToggle = document.querySelector('#sidebarToggle'); // Sesuaikan ID atau selector tombol toggle sidebar
+
+        if (contentWrapper) {
+            contentWrapper.classList.add('transition-width'); // Menambahkan animasi transisi
+
+            sidebarToggle.addEventListener('click', function () {
+                setTimeout(() => {
+                    if (document.body.classList.contains('sidebar-collapsed')) {
+                        contentWrapper.classList.add('full-width');
+                    } else {
+                        contentWrapper.classList.remove('full-width');
+                    }
+                }, 300); // Sesuaikan waktu transisi dengan animasi sidebar
+            });
+        }
+    });
+</script>
 @endpush

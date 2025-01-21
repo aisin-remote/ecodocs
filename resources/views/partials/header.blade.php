@@ -90,7 +90,9 @@
                                         </p>
                                     </div>
                                 </div>
-                                <a href="{{ route('logout') }}" class="btn btn-outline-primary">Log Out</a>
+                                <div class="d-flex justify-content-center mt-2">
+                                    <a href="{{ route('logout') }}" class="btn btn-outline-primary">Log Out</a>
+                                </div>
                             </div>
                         </div>
                     </li>

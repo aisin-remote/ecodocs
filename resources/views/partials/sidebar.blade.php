@@ -35,7 +35,7 @@
                 <!-- =================== -->
                 <!-- Dashboard -->
                 <!-- =================== -->
-                @if (auth()->user()->role == 'admin')
+                @if (auth()->user()->role == 'Safety')
                     <li class="sidebar-item">
                         <a class="sidebar-link has-arrow" href="#" aria-expanded="false">
                             <span class="d-flex">
@@ -63,20 +63,20 @@
                         </ul>
                     </li>
                     <li class="sidebar-item">
-                        <a class="sidebar-link" href="/approval" aria-expanded="false">
-                            <span>
-                                <i class="ti ti-checklist"></i>
-                            </span>
-                            <span class="hide-menu">Approval</span>
-                        </a>
-                    </li>
-                @else
-                    <li class="sidebar-item">
                         <a class="sidebar-link" href="/report" aria-expanded="false">
                             <span>
                                 <i class="ti ti-file-analytics"></i>
                             </span>
                             <span class="hide-menu">Report</span>
+                        </a>
+                    </li>
+                @else
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="/approval" aria-expanded="false">
+                            <span>
+                                <i class="ti ti-checklist"></i>
+                            </span>
+                            <span class="hide-menu">Approval</span>
                         </a>
                     </li>
                 @endif

@@ -29,14 +29,32 @@
                                 <form action="{{ route('register') }}" method="POST">
                                     @csrf
                                     <div class="mb-3">
+                                        <label for="exampleInputNpk" class="form-label">NPK</label>
+                                        <input type="text" class="form-control" id="exampleInputNpk"
+                                            aria-describedby="textHelp" name="npk">
+                                    </div>
+                                    <div class="mb-3">
                                         <label for="exampleInputtext1" class="form-label">Name</label>
                                         <input type="text" class="form-control" id="exampleInputtext1"
                                             aria-describedby="textHelp" name="name">
                                     </div>
                                     <div class="mb-3">
+                                        <label for="exampleInputDept" class="form-label">Department</label>
+                                        <select class="form-control" id="exampleInputDept" name="dept">
+                                            <option value="" disabled selected>Select a department</option>
+                                            <option value="HR&GA">HR&GA</option>
+                                            <option value="MS">Management System</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
                                         <label for="exampleInputEmail1" class="form-label">Email Address</label>
                                         <input type="email" class="form-control" id="exampleInputEmail1"
                                             aria-describedby="emailHelp" name="email">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="exampleInputno_hp" class="form-label">No HP</label>
+                                        <input type="text" class="form-control" id="exampleInputno_hp"
+                                            aria-describedby="textHelp" name="no_hp">
                                     </div>
                                     <div class="mb-4">
                                         <label for="exampleInputPassword1" class="form-label">Password</label>

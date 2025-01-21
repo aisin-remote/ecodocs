@@ -35,7 +35,7 @@ Route::post('/register-proses', [AuthController::class, 'register'])->name('regi
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:Safety'])->group(function () {
     // MASTER CRUD DESTINATION
     Route::prefix('destination')->name('destination.')->group(function () {
         Route::get('/', [DestinationController::class, 'index'])->name('index');

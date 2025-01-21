@@ -14,27 +14,34 @@ class AuthController extends Controller
         return view('pages.auth.login');
     }
     public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+{
+    $request->validate([
+        'login' => 'required', // Bisa berupa email atau NPK
+        'password' => 'required',
+    ]);
 
-        // Data kredensial
-        $credentials = $request->only('email', 'password');
+    // Cek apakah login berupa email atau NPK
+    $loginField = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'npk';
 
-        // Coba autentikasi user
-        if (Auth::attempt($credentials, $request->has('remember'))) {
-            // Login berhasil
-            $request->session()->regenerate();
-            return redirect()->route(route: 'dashboard'); // Redirect ke halaman home atau halaman yang diinginkan
-        }
+    // Data kredensial
+    $credentials = [
+        $loginField => $request->login,
+        'password' => $request->password,
+    ];
 
-        // Jika login gagal
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+    // Coba autentikasi user
+    if (Auth::attempt($credentials, $request->has('remember'))) {
+        // Login berhasil
+        $request->session()->regenerate();
+        return redirect()->route('dashboard'); // Redirect ke halaman dashboard
     }
+
+    // Jika login gagal
+    return back()->withErrors([
+        'login' => 'The provided credentials do not match our records.',
+    ])->onlyInput('login');
+}
+
     public function registerForm()
     {
         return view('pages.auth.register');
@@ -51,9 +58,12 @@ class AuthController extends Controller
         // Membuat pengguna baru dengan role user
         User::create([
             'name' => $request->name,
+            'npk' => $request->npk,
+            'dept' => $request->dept,
+            'no_hp' => $request->no_hp,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'user', // Set role menjadi 'user' secara otomatis
+            'role' => $request->dept === 'MS' ? 'Safety' : 'GA',
         ]);
 
         // Redirect ke halaman setelah registrasi

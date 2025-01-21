@@ -20,6 +20,9 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'npk',
+        'dept',
+        'no_hp',
         'email',
         'password',
         'role',
@@ -47,5 +50,10 @@ class User extends Authenticatable
     public function hasRole($role)
     {
         return $this->role === $role;
+    }
+    
+    public function approvedReports()
+    {
+        return $this->hasMany(Report::class, 'approve_id');
     }
 }

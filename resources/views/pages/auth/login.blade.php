@@ -30,9 +30,9 @@
                                 <form action="{{ route('login') }}" method="POST">
                                     @csrf
                                     <div class="mb-3">
-                                        <label for="exampleInputEmail1" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="exampleInputEmail1"
-                                            aria-describedby="emailHelp" name="email">
+                                        <label for="login" class="form-label">Email/NPK</label>
+                                        <input type="text" class="form-control" id="login"
+                                            aria-describedby="emailHelp" name="login" value="{{ old('login') }}" required autofocus>
                                     </div>
                                     <div class="mb-4">
                                         <label for="exampleInputPassword1" class="form-label">Password</label>

@@ -21,4 +21,8 @@ class Report extends Model
     {
         return $this->hasMany(Details::class, 'report_id');
     }
+public function approver()
+    {
+        return $this->belongsTo(User::class, 'approve_id');
+    }
 }

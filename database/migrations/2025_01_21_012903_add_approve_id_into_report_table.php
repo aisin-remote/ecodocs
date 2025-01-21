@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('reports', function (Blueprint $table) {
-            $table->text('file')->nullable()->after('surat_jalan');
+        schema::table('reports', function (Blueprint $table) {
+            $table->unsignedBigInteger('approve_id')->nullable()->after('destination_id');
+            $table->foreign('approve_id')->references('id')->on('users');
         });
     }
 
@@ -21,8 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('reports', function (Blueprint $table) {
-            //
-        });
+        //
     }
 };
