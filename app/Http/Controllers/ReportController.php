@@ -213,7 +213,7 @@ class ReportController extends Controller
     $report = Report::with(['approver', 'details.limbah'])->findOrFail($id);
 
     // Template Excel file path
-    $templatePath = storage_path('app/public/templates/FIMBKA.xlsx');
+    $templatePath = public_path('templates/FormTemplate.xlsx');
 
     // Output Excel file path
     $fileName = 'report_' . $report->surat_jalan . '.xlsx';
