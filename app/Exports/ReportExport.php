@@ -7,7 +7,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-
+use Carbon\Carbon;
 
 class ReportExport
 {
@@ -22,6 +22,14 @@ class ReportExport
 
     public function exportToFile($outputPath)
     {
+        $currentDate = Carbon::now();
+
+        // Format the date components
+        $month = $currentDate->format('m'); // Two-digit month
+        $day = $currentDate->format('d');   // Two-digit day
+
+        // Concatenate the values
+        $formattedValue = 'REG. No: ' . $this->report->surat_jalan . ' / GA /FIMBKA /' . $month . ' /' . $day;
         // Load template Excel file
         $spreadsheet = IOFactory::load($this->templatePath);
 
@@ -29,7 +37,7 @@ class ReportExport
         $sheet = $spreadsheet->getActiveSheet();
 
         // Surat Jalan
-        $sheet->setCellValue('AB5', $this->report->surat_jalan);
+        $sheet->setCellValue('B2', $formattedValue);
         // tanggal pembuatan
         $sheet->setCellValue('AB5', $this->report->created_at->format('d/m/Y')); // Tanggal dibuat
         // npk pemohon

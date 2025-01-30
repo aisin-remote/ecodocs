@@ -86,7 +86,7 @@
                                         <select class="form-control" name="unit" required>
                                             <option value="" selected disabled>Choose</option>
                                             <option value="Kg">Kg</option>
-                                            <option value="Pcs">Pcs</option>
+                                            <option value="Drum">Drum</option>
                                         </select>
                                     </div>
                                     <div class="col-lg-2 col-sm-12">
