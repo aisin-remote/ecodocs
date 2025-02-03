@@ -138,12 +138,22 @@
                         </h4>
                     </div>
                     <div class="col-3 text-end">
-                        <button class="btn btn-primary px-4 py-2" id="addSkill">
-                            <span class="rounded-3 pe-2" id="icon">
-                                <i class="ti ti-plus"></i>
-                            </span>
-                            <span class="d-none d-sm-inline-block">Create Report</span>
-                        </button>
+                        <div class="d-flex justify-content-end gap-2">
+                            <!-- Tombol Filter -->
+                            <button class="btn btn-primary px-3 py-1" id="filterReports" style="font-size: 14px;">
+                                <span class="rounded-3 pe-2">
+                                    <span class="d-none d-sm-inline-block">Filter</span>
+                                    <i class="ti ti-filter"></i>
+                                </span>
+                            </button>
+                            <!-- Tombol Create Report -->
+                            <button class="btn btn-primary px-3 py-1" id="createReport" style="font-size: 14px;">
+                                <span class="rounded-3 pe-2">
+                                    <i class="ti ti-plus"></i>
+                                </span>
+                                <span class="d-none d-sm-inline-block">Create Report</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -169,40 +179,40 @@
                                         'Pending' => 'btn-warning',
                                         'Approved' => 'btn-success',
                                     ];
-
+    
                                     $attr = [
                                         'Pending' => 'disabled',
                                         'Approved' => '',
                                     ];
                                 @endphp
-
+    
                                 <td>
                                     <span class="btn {{ $statusClasses[$report->status] ?? 'bg-secondary' }} btn-sm">
                                         {{ $report->status }}
                                     </span>
                                 </td>
-
+    
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-1">
-                                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
                                             data-target="#showModal" data-id="{{ $report->id }}">
                                             <i class="ti ti-eye"></i>
                                         </button>
                                         @if ($report->status == 'Pending')
-                                            <a href="report/edit/{{ $report->id }}" class="btn btn-warning">
+                                            <a href="report/edit/{{ $report->id }}" class="btn btn-warning btn-sm">
                                                 <i class="ti ti-pencil"></i>
                                             </a>
                                             <form action="{{ route('report.destroy', $report->id) }}" method="post"
                                                 class="delete-button">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-danger">
+                                                <button type="submit" class="btn btn-danger btn-sm">
                                                     <i class="ti ti-x"></i>
                                                 </button>
                                             </form>
                                         @endif
                                         @if ($report->status == 'Approved')
-                                            <a href="{{ route('report.download', $report->id) }}" class="btn btn-dark"
+                                            <a href="{{ route('report.download', $report->id) }}" class="btn btn-dark btn-sm"
                                                 {{ $attr[$report->status] }}>
                                                 <i class="ti ti-printer"></i>
                                             </a>
