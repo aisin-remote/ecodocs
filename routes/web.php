@@ -71,6 +71,9 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/delete/{report_id}', [ReportController::class, 'destroy'])->name('destroy');
         Route::get('/report/{report_id}', [ReportController::class, 'show'])->name('show');
         Route::get('reports/download/{report}', [ReportController::class, 'download'])->name('download');
+        Route::get('/reports/filter', [ReportController::class, 'filter'])->name('filter');
+        Route::get('reports/downloadMonthly', [ReportController::class, 'downloadReportsMonthly'])->name('downloadMonthly');
+
     });
 
     Route::prefix('approval')->name('approval.')->group(function () {

@@ -132,31 +132,53 @@
         <div class="card">
             <div class="card-header pt-4" style="background-color: white !important">
                 <div class="row">
-                    <div class="col-9">
+                    <div class="col-8">
                         <h4 class="fw-5">
                             Reports
                         </h4>
                     </div>
-                    <div class="col-3 text-end">
-                        <div class="d-flex justify-content-end gap-2">
-                            <!-- Tombol Filter -->
-                            <button class="btn btn-primary px-3 py-1" id="filterReports" style="font-size: 14px;">
+                    <div class="col-4 text-end d-flex justify-content-end">
+                        <!-- Button Download (Dropdown untuk memilih bulan) -->
+                        <div class="dropdown">
+                            <button class="btn btn-success btn-sm px-3 py-1 me-2 dropdown-toggle" type="button" id="downloadButton" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="rounded-3 pe-2">
-                                    <span class="d-none d-sm-inline-block">Filter</span>
-                                    <i class="ti ti-filter"></i>
+                                    <i class="ti ti-download"></i>
                                 </span>
+                                <span class="d-none d-sm-inline-block">Download</span>
                             </button>
-                            <!-- Tombol Create Report -->
-                            <button class="btn btn-primary px-3 py-1" id="createReport" style="font-size: 14px;">
-                                <span class="rounded-3 pe-2">
-                                    <i class="ti ti-plus"></i>
-                                </span>
-                                <span class="d-none d-sm-inline-block">Create Report</span>
-                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="downloadButton">
+                                <li>
+                                    <label class="dropdown-item" for="filterMonth">Select Month:</label>
+                                    <select class="form-select" id="filterMonth">
+                                        <option value="">Select Month</option>
+                                        @foreach ($months as $month)
+                                            <option value="{{ $month['value'] }}">{{ $month['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item" id="applyDownload">Apply</button>
+                                </li>
+                            </ul>
                         </div>
+                        <!-- Button Filter -->
+                        <button class="btn btn-outline-secondary btn-sm px-3 py-1 me-2" id="filterButton" data-bs-toggle="modal" data-bs-target="#filterModal">
+                            <span class="rounded-3 pe-2">
+                                <i class="ti ti-filter"></i>
+                            </span>
+                            <span class="d-none d-sm-inline-block">Filter</span>
+                        </button>
+            
+                        <!-- Button Create Report -->
+                        <button class="btn btn-primary btn-sm px-3 py-1" id="addSkill">
+                            <span class="rounded-3 pe-2" id="icon">
+                                <i class="ti ti-plus"></i>
+                            </span>
+                            <span class="d-none d-sm-inline-block">Create Report</span>
+                        </button>
                     </div>
                 </div>
-            </div>
+            </div>                                    
             <div class="card-body p-3">
                 <table class="table text-nowrap align-middle mb-0" id="masterSkill" style="width:100%">
                     <thead>
@@ -293,7 +315,58 @@
             </div>
         </div>
     </div>
-
+    {{-- Modal Filter --}}
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModalLabel">Filter Reports</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('report.filter') }}" method="GET">
+                        <div class="mb-3">
+                            <label for="filterMonth" class="form-label">Month</label>
+                            <select class="form-control" id="filterMonth" name="month">
+                                <option value="">Select Month</option>
+                                @foreach ($months as $month)
+                                    <option value="{{ $month['value'] }}" 
+                                        {{ request('month') == $month['value'] ? 'selected' : '' }}>
+                                        {{ $month['name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="filterStatus" class="form-label">Status</label>
+                            <select class="form-control" id="filterStatus" name="status">
+                                <option value="">All Categories</option>
+                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="filterDestination" class="form-label">Destination</label>
+                            <select class="form-control" id="filterDestination" name="destination">
+                                <option value="">All Categories</option>
+                                @foreach ($destination as $d)
+                                    <option value="{{ $d->id }}" 
+                                        {{ request('destination') == $d->id ? 'selected' : '' }}>
+                                        {{ $d->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Apply Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     {{-- modal view document --}}
     {{-- <div class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="showModalLabel"
         aria-hidden="true">
@@ -322,6 +395,45 @@
     <script src={{ asset('js/jquery-3.6.3.min.js') }} integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
         crossorigin="anonymous"></script>
     <script>
+        document.getElementById('applyDownload').addEventListener('click', function() {
+            var selectedMonth = document.getElementById('filterMonth').value;
+
+            // Menyiapkan URL untuk download dengan parameter bulan
+            var url = '{{ route("report.downloadMonthly") }}';  // Pastikan ini sesuai dengan route download di Laravel
+
+            // Tambahkan parameter bulan jika ada
+            if (selectedMonth) {
+                url += '?month=' + selectedMonth;
+            }
+
+            // Redirect untuk download dengan filter bulan
+            window.location.href = url;
+        });
+        $(document).ready(function () {
+            $("#applyFilter").on("click", function () {
+                let month = $("#filterMonth").val();
+                let status = $("#filterStatus").val();
+                let destination = $("#filterDestination").val();
+
+                $.ajax({
+                    url: "{{ route('report.filter') }}", // Ganti dengan route yang sesuai
+                    type: "GET",
+                    data: {
+                        month: month,
+                        status: status,
+                        destination: destination
+                    },
+                    success: function (response) {
+                        $("#reportTable tbody").html(response.html); // Perbarui data di tabel
+                        $("#filterModal").modal("hide"); // Tutup modal setelah filter diterapkan
+                    },
+                    error: function () {
+                        alert("Something went wrong! Please try again.");
+                    }
+                });
+            });
+        });
+
         $(document).ready(function() {
             $('#addSkill').on('click', function() {
                 $("#addSkillCard").toggle();

@@ -13,21 +13,53 @@ use App\Http\Requests\StorereportRequest;
 use App\Http\Requests\UpdatereportRequest;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ReportController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $limbah = Limbah::all();
-        $destination = Destination::all();
-        $reports = Report::with(['details', 'destination'])->get();
+    public function index(Request $request)
+{
+    $limbah = Limbah::all();
+    $destination = Destination::all();
 
-        return view('pages.website.report.index', compact('limbah', 'destination', 'reports'));
+    $query = Report::with(['details', 'destination']);
+
+    if ($request->month) {
+        $query->whereMonth('created_at', $request->month);
+    }
+    if ($request->status) {
+        $query->where('status', $request->status);
+    }
+    if ($request->destination) {
+        $query->where('destination_id', $request->destination);
     }
 
+    $reports = $query->get();
+
+    // Ambil daftar bulan untuk dropdown
+    $months = collect(range(1, 12))->map(function ($month) {
+        return [
+            'value' => str_pad($month, 2, '0', STR_PAD_LEFT),
+            'name' => date('F', mktime(0, 0, 0, $month, 1)),
+        ];
+    });
+
+    return view('pages.website.report.index', compact('limbah', 'destination', 'reports', 'months'));
+}
+
+    public function filter(Request $request)
+    {
+        return redirect()->route('report.index', [
+            'month' => $request->month,
+            'status' => $request->status,
+            'destination' => $request->destination
+        ]);
+    }
+    
     public function getReportData($id)
     {
         $reports = Report::with(['details.limbah', 'destination'])
@@ -230,5 +262,71 @@ class ReportController extends Controller
     // Unduh file hasil ekspor
     return response()->download($outputPath)->deleteFileAfterSend(true); // Menghapus file setelah diunduh
 }
+public function downloadReportsMonthly(Request $request)
+{
+    $month = $request->input('month');
+    $limbah = Limbah::pluck('name')->toArray();
+
+    // Ambil data dari tabel `details` berdasarkan bulan yang dipilih
+    $reports = Details::join('limbahs', 'details.limbah_id', '=', 'limbahs.id')
+        ->whereIn('limbahs.name', $limbah) // Filter hanya limbah yang ada di UKL-UPL Induk
+        ->whereMonth('details.created_at', $month)
+        ->select('details.qty', 'details.created_at', 'limbahs.name')
+        ->get();
+
+        dd($reports);
+
+
+    $templatePath = public_path('templates/RekapMonthlyEcodocs.xlsx');
+    $spreadsheet = IOFactory::load($templatePath);
+    $sheet = $spreadsheet->getActiveSheet();
+
+    $columns = [
+        'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK'
+    ];
+
+    // Inisialisasi array untuk menyimpan qty berdasarkan nama limbah dan tanggal
+    $dataLimbah = [];
+
+    foreach ($limbah as $namaLimbah) {
+        $dataLimbah[$namaLimbah] = array_fill(1, 31, 0);
+    }
+
+    // Mapping qty berdasarkan nama limbah dan tanggal
+    foreach ($reports as $report) {
+        $day = (int)$report->created_at->format('d'); // Ambil tanggal
+        $namaLimbah = $report->nama_limbah;
+
+        if (isset($dataLimbah[$namaLimbah]) && $day >= 1 && $day <= 31) {
+            $dataLimbah[$namaLimbah][$day] += $report->qty; // Jumlahkan jika ada lebih dari satu entri
+        }
+    }
+
+    // Menentukan baris awal pengisian data (mulai dari baris 9)
+    $row = 9; 
+
+    // Mengisi setiap baris untuk setiap limbah
+    foreach ($dataLimbah as $namaLimbah => $qtyData) {
+        $sheet->setCellValue('B' . $row, $namaLimbah); // Kolom B untuk nama limbah
+
+        foreach ($columns as $index => $column) {
+            $day = $index + 1; // Tanggal mulai dari 1-31
+            $sheet->setCellValue($column . $row, $qtyData[$day]); 
+        }
+
+        $row++; // Pindah ke baris berikutnya untuk limbah berikutnya
+    }
+
+    // Simpan file
+    $writer = new Xlsx($spreadsheet);
+    $fileName = 'reports_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+    $filePath = storage_path('app/public/' . $fileName);
+    $writer->save($filePath);
+
+    // Mengunduh file
+    return response()->download($filePath)->deleteFileAfterSend(true);
+}
+
 
 }
