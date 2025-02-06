@@ -87,7 +87,9 @@
                     <thead>
                         <tr>
                             <th>Code</th>
+                            <th>Jenis</th>
                             <th>Name</th>
+                            <th>Int Code</th>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
@@ -153,7 +155,9 @@
                         table.clear().draw();
                         $.each(data, function(index, item) {
                             table.row.add([
-                                item.code,
+                                item.code ? item.code : '-',
+                                item.jenis_limbah,
+                                item.kode_internal,
                                 item.name,
                                 '<div class="text-center">' +
                                 '<button class="btn btn-icon btn-warning edit me-2" data-id="' +

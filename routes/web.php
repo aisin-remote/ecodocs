@@ -70,10 +70,9 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/update', [ReportController::class, 'update'])->name('update');
         Route::delete('/delete/{report_id}', [ReportController::class, 'destroy'])->name('destroy');
         Route::get('/report/{report_id}', [ReportController::class, 'show'])->name('show');
-        Route::get('reports/download/{report}', [ReportController::class, 'download'])->name('download');
+        Route::get('reports/download/{report}', action: [ReportController::class, 'download'])->name('download');
         Route::get('/reports/filter', [ReportController::class, 'filter'])->name('filter');
-        Route::get('reports/downloadMonthly', [ReportController::class, 'downloadReportsMonthly'])->name('downloadMonthly');
-
+        Route::get('/download-reports-monthly', [ReportController::class, 'downloadReportsMonthly'])->name('downloadReportsMonthly');
     });
 
     Route::prefix('approval')->name('approval.')->group(function () {

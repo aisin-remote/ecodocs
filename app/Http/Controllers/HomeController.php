@@ -23,7 +23,7 @@ class HomeController extends Controller
         // Inisialisasi data untuk chart
         $limbahCodes = [];
         $quantitiesKg = [];
-        $quantitiesPcs = [];
+        $quantitiesDrum = [];
 
         // Array untuk mengelompokkan data berdasarkan kode limbah
         $groupedDetails = [];
@@ -35,22 +35,22 @@ class HomeController extends Controller
 
         foreach ($details as $detail) {
             // Cek apakah kode limbah sudah ada di grup
-            $limbahCode = $detail->limbah->code;
+            $limbahCode = $detail->limbah->name;
 
             if (!isset($groupedDetails[$limbahCode])) {
                 // Jika kode limbah belum ada di grup, inisialisasi array untuk qty
                 $groupedDetails[$limbahCode] = [
                     'limbahCode' => $limbahCode,
                     'quantitiesKg' => 0,
-                    'quantitiesPcs' => 0
+                    'quantitiesDrum' => 0
                 ];
             }
 
             // Cek unit untuk menentukan ke array mana nilai `qty` akan ditambahkan
             if (strtolower($detail->unit) === 'kg') {
                 $groupedDetails[$limbahCode]['quantitiesKg'] += $detail->qty; // Jumlahkan kg
-            } elseif (strtolower($detail->unit) === 'pcs') {
-                $groupedDetails[$limbahCode]['quantitiesPcs'] += $detail->qty; // Jumlahkan pcs
+            } elseif (strtolower($detail->unit) === 'drum') {
+                $groupedDetails[$limbahCode]['quantitiesDrum'] += $detail->qty; // Jumlahkan pcs
             }
         }
 
@@ -58,10 +58,10 @@ class HomeController extends Controller
         foreach ($groupedDetails as $group) {
             $limbahCodes[] = $group['limbahCode'];
             $quantitiesKg[] = $group['quantitiesKg'];
-            $quantitiesPcs[] = $group['quantitiesPcs'];
+            $quantitiesDrum[] = $group['quantitiesDrum'];
         }
 
         // Kembalikan ke view dengan data yang sudah digabungkan
-        return view('pages.website.dashboard', compact('limbahCodes', 'quantitiesKg', 'quantitiesPcs', 'month'));
+        return view('pages.website.dashboard', compact('limbahCodes', 'quantitiesKg', 'quantitiesDrum', 'month'));
     }
 }

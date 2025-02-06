@@ -14,7 +14,10 @@ use App\Http\Requests\UpdatereportRequest;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
@@ -84,12 +87,13 @@ class ReportController extends Controller
      */
     public function store(StorereportRequest $request)
     {
+        // dd($request);
         // Validasi input
         $request->validate([
             'destination_id' => 'required|exists:destinations,id',
             'license_plate' => 'required|string|max:255',
             'repeater-group' => 'required|array',
-            'repeater-group.*.waste_code' => 'required|string|exists:limbahs,code', // Validasi untuk waste_code
+            'repeater-group.*.waste_code' => 'required|string|exists:limbahs,id', // Validasi untuk waste_code
             'repeater-group.*.quantity' => 'required|numeric|min:0',
             'repeater-group.*.unit' => 'required|string',
             'repeater-group.*.description' => 'nullable|string',
@@ -112,7 +116,7 @@ class ReportController extends Controller
             }
 
             // Mengambil ID limbah berdasarkan waste_code
-            $limbah = Limbah::where('code', $item['waste_code'])->first();
+            $limbah = Limbah::where('id', $item['waste_code'])->first();
 
             Details::create([
                 'report_id' => $report->id, // Menghubungkan detail dengan report
@@ -262,71 +266,110 @@ class ReportController extends Controller
     // Unduh file hasil ekspor
     return response()->download($outputPath)->deleteFileAfterSend(true); // Menghapus file setelah diunduh
 }
+private function getColumnForDate($date)
+{
+    // Mengambil bulan dan tanggal dari input $date
+    $month = date('m', strtotime($date));
+    $day = (int) date('d', strtotime($date));
+
+    // Pemetaan kolom berdasarkan tanggal (misalnya 1 Januari pada kolom G, 2 Januari pada kolom H, dst.)
+    // Jika template Excel Anda memiliki kolom untuk tanggal 1 hingga 31, kita bisa memetakan secara langsung.
+    // Berikut adalah contoh pemetaan untuk Januari yang dimulai dari kolom G (kolom 7) untuk tanggal 1.
+    $columnMapping = [
+        1 => 'G', 2 => 'H', 3 => 'I', 4 => 'J', 5 => 'K', 6 => 'L',
+        7 => 'M', 8 => 'N', 9 => 'O', 10 => 'P', 11 => 'Q', 12 => 'R',
+        13 => 'S', 14 => 'T', 15 => 'U', 16 => 'V', 17 => 'W', 18 => 'X',
+        19 => 'Y', 20 => 'Z', 21 => 'AA', 22 => 'AB', 23 => 'AC', 24 => 'AD',
+        25 => 'AE', 26 => 'AF', 27 => 'AG', 28 => 'AH', 29 => 'AI', 30 => 'AJ', 31 => 'AK',
+    ];
+
+    // Menyusun tanggal untuk menghubungkan ke kolom yang tepat
+    if (isset($columnMapping[$day])) {
+        return $columnMapping[$day];
+    }
+
+    return null; // Jika tanggal tidak ditemukan (misalnya 32, dll.)
+}
+
 public function downloadReportsMonthly(Request $request)
 {
-    $month = $request->input('month');
-    $limbah = Limbah::pluck('name')->toArray();
+    $selectedMonth = $request->query('month', date('m')); // Default bulan saat ini jika tidak dipilih
+    $year = date('Y');
 
-    // Ambil data dari tabel `details` berdasarkan bulan yang dipilih
-    $reports = Details::join('limbahs', 'details.limbah_id', '=', 'limbahs.id')
-        ->whereIn('limbahs.name', $limbah) // Filter hanya limbah yang ada di UKL-UPL Induk
-        ->whereMonth('details.created_at', $month)
-        ->select('details.qty', 'details.created_at', 'limbahs.name')
-        ->get();
-
-        dd($reports);
-
-
+    // Pastikan path template benar
     $templatePath = public_path('templates/RekapMonthlyEcodocs.xlsx');
+    if (!file_exists($templatePath)) {
+        return response()->json(['error' => 'Template file not found.'], 404);
+    }
+
     $spreadsheet = IOFactory::load($templatePath);
     $sheet = $spreadsheet->getActiveSheet();
 
-    $columns = [
-        'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-        'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK'
-    ];
+    // Ambil data limbah
+    $limbahData = DB::table('limbahs')->select('id', 'code', 'jenis_limbah', 'kode_internal', 'name')->get();
+    $row = 9;
+    $bulanTahun = date('F Y', mktime(0, 0, 0, $selectedMonth, 1, $year));
+    $sheet->mergeCells('G6:AK6'); // Merge range G6 - AK6
+    $sheet->setCellValue('G6', $bulanTahun);
+    $sheet->getStyle('G6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+    $sheet->getStyle('G6')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+    $sheet->getStyle('G6')->getFont()->setBold(true);
 
-    // Inisialisasi array untuk menyimpan qty berdasarkan nama limbah dan tanggal
-    $dataLimbah = [];
 
-    foreach ($limbah as $namaLimbah) {
-        $dataLimbah[$namaLimbah] = array_fill(1, 31, 0);
-    }
-
-    // Mapping qty berdasarkan nama limbah dan tanggal
-    foreach ($reports as $report) {
-        $day = (int)$report->created_at->format('d'); // Ambil tanggal
-        $namaLimbah = $report->nama_limbah;
-
-        if (isset($dataLimbah[$namaLimbah]) && $day >= 1 && $day <= 31) {
-            $dataLimbah[$namaLimbah][$day] += $report->qty; // Jumlahkan jika ada lebih dari satu entri
+    foreach ($limbahData as $limbah) {
+        $sheet->setCellValue('A' . $row, $limbah->code);
+        $sheet->mergeCells("B{$row}:D{$row}");
+        $sheet->setCellValue("B{$row}", $limbah->jenis_limbah);
+        $sheet->setCellValue('E' . $row, $limbah->kode_internal);
+        $sheet->setCellValue('F' . $row, $limbah->name);
+    
+        // Ambil data berdasarkan bulan
+        $detailsData = DB::table('details')
+            ->select(DB::raw('SUM(qty) as total_quantity'), DB::raw('DATE(created_at) as created_date'))
+            ->where('limbah_id', $limbah->id)
+            ->whereMonth('created_at', $selectedMonth)
+            ->whereYear('created_at', $year)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->get();
+    
+        // Simpan tanggal yang sudah terisi
+        $filledDates = [];
+    
+        foreach ($detailsData as $data) {
+            $date = $data->created_date;
+            $column = $this->getColumnForDate($date);
+    
+            if ($column) {
+                $sheet->setCellValue($column . $row, $data->total_quantity);
+                $filledDates[] = (int)date('d', strtotime($date)); // Simpan tanggal yang sudah terisi
+            }
         }
-    }
-
-    // Menentukan baris awal pengisian data (mulai dari baris 9)
-    $row = 9; 
-
-    // Mengisi setiap baris untuk setiap limbah
-    foreach ($dataLimbah as $namaLimbah => $qtyData) {
-        $sheet->setCellValue('B' . $row, $namaLimbah); // Kolom B untuk nama limbah
-
-        foreach ($columns as $index => $column) {
-            $day = $index + 1; // Tanggal mulai dari 1-31
-            $sheet->setCellValue($column . $row, $qtyData[$day]); 
+    
+        // Isi kolom kosong dengan 0 hanya untuk bulan yang dipilih
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $selectedMonth, $year);
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $column = $this->getColumnForDate(date("$year-$selectedMonth-$day"));
+    
+            if ($column && !in_array($day, $filledDates)) {
+                $sheet->setCellValue($column . $row, 0);  // Set 0 jika tanggal tersebut tidak memiliki quantity
+            }
         }
+    
+        $row++;
+    }    
 
-        $row++; // Pindah ke baris berikutnya untuk limbah berikutnya
-    }
+    $bulan = date('F', mktime(0, 0, 0, $selectedMonth, 1));
+    $fileName = "ReportMonthlyEcodocs_{$bulan}.xlsx";
 
-    // Simpan file
     $writer = new Xlsx($spreadsheet);
-    $fileName = 'reports_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
-    $filePath = storage_path('app/public/' . $fileName);
-    $writer->save($filePath);
+    $response = new StreamedResponse(function () use ($writer) {
+        $writer->save('php://output');
+    });
 
-    // Mengunduh file
-    return response()->download($filePath)->deleteFileAfterSend(true);
+    $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    $response->headers->set('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    $response->headers->set('Cache-Control', 'max-age=0');
+
+    return $response;
 }
-
-
 }

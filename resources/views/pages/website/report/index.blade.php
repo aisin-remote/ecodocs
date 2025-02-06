@@ -66,8 +66,8 @@
                                         <select class="form-control waste-code" name="waste_code" required>
                                             <option selected disabled>Choose Waste Code...</option>
                                             @foreach ($limbah as $limbahItem)
-                                                <option value="{{ $limbahItem->code }}" data-name="{{ $limbahItem->name }}">
-                                                    {{ $limbahItem->code }}</option>
+                                                <option value="{{ $limbahItem->id }}" data-name="{{ $limbahItem->name }}">
+                                                    {{ $limbahItem->kode_internal }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -85,6 +85,7 @@
                                         <label class="mb-1">UOM</label>
                                         <select class="form-control" name="unit" required>
                                             <option value="" selected disabled>Choose</option>
+                                            <option value="Pcs">Pcs</option>
                                             <option value="Kg">Kg</option>
                                             <option value="Drum">Drum</option>
                                         </select>
@@ -395,19 +396,16 @@
     <script src={{ asset('js/jquery-3.6.3.min.js') }} integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
         crossorigin="anonymous"></script>
     <script>
-        document.getElementById('applyDownload').addEventListener('click', function() {
-            var selectedMonth = document.getElementById('filterMonth').value;
+        document.getElementById('applyDownload').addEventListener('click', function () {
+        let selectedMonth = document.getElementById('filterMonth').value;
 
-            // Menyiapkan URL untuk download dengan parameter bulan
-            var url = '{{ route("report.downloadMonthly") }}';  // Pastikan ini sesuai dengan route download di Laravel
+        if (!selectedMonth) {
+            alert('Please select a month.');
+            return;
+        }
 
-            // Tambahkan parameter bulan jika ada
-            if (selectedMonth) {
-                url += '?month=' + selectedMonth;
-            }
-
-            // Redirect untuk download dengan filter bulan
-            window.location.href = url;
+        // Redirect dengan parameter bulan
+        window.location.href = `/report/download-reports-monthly?month=${selectedMonth}`;
         });
         $(document).ready(function () {
             $("#applyFilter").on("click", function () {
@@ -484,7 +482,7 @@
                                 <div class="border rounded p-3">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="d-flex align-items-center">
-                                            <span class="badge bg-dark me-2">${report.limbah.code}</span>
+                                            <span class="badge bg-dark me-2">${report.limbah.kode_internal}</span>
                                             <h6 class="mb-0" style="font-weight: bold;">: ${report.limbah.name}</h6>
                                         </div>
                                         <span class="badge bg-primary">${report.qty} ${report.unit}</span>

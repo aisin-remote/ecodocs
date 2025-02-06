@@ -82,7 +82,7 @@
                     yAxis: 0 // Gunakan Y Axis pertama (Kiri)
                 }, {
                     name: 'Waste (Pcs)',
-                    data: @json($quantitiesPcs), // Data dalam unit Pcs
+                    data: @json($quantitiesDrum), // Data dalam unit Pcs
                     yAxis: 1 // Gunakan Y Axis kedua (Kanan)
                 }]
             });
