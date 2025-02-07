@@ -93,7 +93,7 @@ class ReportController extends Controller
             'destination_id' => 'required|exists:destinations,id',
             'license_plate' => 'required|string|max:255',
             'repeater-group' => 'required|array',
-            'repeater-group.*.waste_code' => 'required|string|exists:limbahs,id', // Validasi untuk waste_code
+            'repeater-group.*.waste' => 'required|string|exists:limbahs,id', // Validasi untuk waste_code
             'repeater-group.*.quantity' => 'required|numeric|min:0',
             'repeater-group.*.unit' => 'required|string',
             'repeater-group.*.description' => 'nullable|string',
@@ -116,7 +116,7 @@ class ReportController extends Controller
             }
 
             // Mengambil ID limbah berdasarkan waste_code
-            $limbah = Limbah::where('id', $item['waste_code'])->first();
+            $limbah = Limbah::where('id', $item['waste'])->first();
 
             Details::create([
                 'report_id' => $report->id, // Menghubungkan detail dengan report

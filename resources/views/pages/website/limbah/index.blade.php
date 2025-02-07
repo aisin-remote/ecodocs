@@ -88,8 +88,8 @@
                         <tr>
                             <th>Code</th>
                             <th>Jenis</th>
-                            <th>Name</th>
                             <th>Int Code</th>
+                            <th>Name</th>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>

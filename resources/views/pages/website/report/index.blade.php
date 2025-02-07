@@ -63,25 +63,20 @@
                                 <div data-repeater-item="" class="row mb-3">
                                     <div class="col-lg-2 col-sm-12">
                                         <label class="mb-1">Waste Code</label>
-                                        <select class="form-control waste-code" name="waste_code" required>
-                                            <option selected disabled>Choose Waste Code...</option>
+                                        <select class="form-control waste-code" name="waste" required>
+                                            <option selected disabled>Choose Waste</option>
                                             @foreach ($limbah as $limbahItem)
-                                                <option value="{{ $limbahItem->id }}" data-name="{{ $limbahItem->name }}">
-                                                    {{ $limbahItem->kode_internal }}</option>
+                                                <option value="{{ $limbahItem->id }}">
+                                                    {{ $limbahItem->name }}</option>
                                             @endforeach
                                         </select>
-                                    </div>
-                                    <div class="col-lg-2 col-sm-12">
-                                        <label class="mb-1">Waste Name</label>
-                                        <input type="text" class="form-control waste-name" name="waste_name"
-                                            placeholder="Waste Name" required readonly>
                                     </div>
                                     <div class="col-lg-2 col-sm-12">
                                         <label class="mb-1">Qty</label>
                                         <input type="number" class="form-control" placeholder="0" name="quantity"
                                             min="0" step="0.01" required>
                                     </div>
-                                    <div class="col-lg-1 col-sm-12">
+                                    <div class="col-lg-2 col-sm-12">
                                         <label class="mb-1">UOM</label>
                                         <select class="form-control" name="unit" required>
                                             <option value="" selected disabled>Choose</option>
@@ -94,7 +89,7 @@
                                         <label class="mb-1">Description</label>
                                         <textarea class="form-control" name="description"></textarea>
                                     </div>
-                                    <div class="col-lg-2 col-sm-12">
+                                    <div class="col-lg-3 col-sm-12">
                                         <label class="mb-1">Photo (Optional)</label>
                                         <input type="file" class="form-control" name="photo"
                                             accept=".jpg, .jpeg, .png, .gif, .bmp">
@@ -439,12 +434,6 @@
                     '<i class="ti ti-plus"></i>');
             });
 
-            $(document).on('change', '.waste-code', function() {
-                const selectedOption = $(this).find(':selected');
-                const wasteNameInput = $(this).closest('.row').find('.waste-name');
-                wasteNameInput.val(selectedOption.data('name') || ''); // Mengisi waste name sesuai pilihan
-            });
-
             // Initialize DataTable
             var table = $('#masterSkill').DataTable({
                 scrollX: true,
@@ -482,7 +471,7 @@
                                 <div class="border rounded p-3">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="d-flex align-items-center">
-                                            <span class="badge bg-dark me-2">${report.limbah.kode_internal}</span>
+                                            <span class="badge bg-dark me-2">${report.limbah.code}</span>
                                             <h6 class="mb-0" style="font-weight: bold;">: ${report.limbah.name}</h6>
                                         </div>
                                         <span class="badge bg-primary">${report.qty} ${report.unit}</span>

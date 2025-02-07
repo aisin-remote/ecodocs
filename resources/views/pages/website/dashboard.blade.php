@@ -45,47 +45,63 @@
 @push('scripts')
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Highcharts.chart('waste-chart', {
-                chart: {
-                    type: 'column'
-                },
-                title: {
-                    text: 'Waste Management'
-                },
-                xAxis: {
-                    categories: @json($limbahCodes), // Kode limbah sebagai kategori (sumbu X)
-                    title: {
-                        text: 'Waste Code'
-                    }
-                },
-                yAxis: [{ // Y Axis pertama (Kiri)
-                    title: {
-                        text: 'Quantity (Kg)'
-                    },
-                    labels: {
-                        format: '{value} Kg'
-                    },
-                    opposite: false // Sumbu di sisi kiri
-                }, { // Y Axis kedua (Kanan)
-                    title: {
-                        text: 'Quantity (Pcs)'
-                    },
-                    labels: {
-                        format: '{value} Pcs'
-                    },
-                    opposite: true // Sumbu di sisi kanan
-                }],
-                series: [{
-                    name: 'Waste (Kg)',
-                    data: @json($quantitiesKg), // Data dalam unit Kg
-                    yAxis: 0 // Gunakan Y Axis pertama (Kiri)
-                }, {
-                    name: 'Waste (Pcs)',
-                    data: @json($quantitiesDrum), // Data dalam unit Pcs
-                    yAxis: 1 // Gunakan Y Axis kedua (Kanan)
-                }]
-            });
+    document.addEventListener("DOMContentLoaded", function () {
+        var groupedDetails = @json($groupedDetails);
+
+        var seriesData = Object.keys(groupedDetails).map(code => {
+            var jenisLimbah = groupedDetails[code].jenis_limbah;
+
+            // Warna berdasarkan jenis limbah
+            var colorMap = {
+                "B3 Padat": "#1E3A8A",  // Biru Tua
+                "B3 Cair": "#1E3A8A",   // Biru Tua
+                "Non B3": "#bf00ff"     // ungu
+            };
+
+            return {
+                name: code,
+                y: groupedDetails[code].qty,
+                color: colorMap[jenisLimbah], // Warna default jika tidak dikenali
+                jenis_limbah: jenisLimbah,
+                unit: groupedDetails[code].unit
+            };
         });
+
+        Highcharts.chart('waste-chart', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Jumlah Limbah Per Kategori'
+            },
+            xAxis: {
+                categories: Object.keys(groupedDetails),
+                title: {
+                    text: 'Jenis Limbah'
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Jumlah Limbah'
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            tooltip: {
+                formatter: function () {
+                    return `<b>${this.point.name}</b><br>
+                            Jumlah: <b>${this.y}</b><br>
+                            Jenis Limbah: <b>${this.point.jenis_limbah}</b><br>
+                            Unit: <b>${this.point.unit}</b>`;
+                }
+            },
+            series: [{
+                name: 'Jumlah Limbah',
+                data: seriesData // Warna sudah diset di sini
+            }]
+        });
+    });
     </script>
 @endpush

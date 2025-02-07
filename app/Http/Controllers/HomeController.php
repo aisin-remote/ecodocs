@@ -10,58 +10,43 @@ use Illuminate\Http\Request;
 class HomeController extends Controller
 {
     public function dashboard(Request $request)
-    {
-        // Ambil bulan saat ini jika tidak ada input 'month'
-        $currentMonth = now()->month;
-        $month = $request->input('month', $currentMonth);
+{
+    $currentMonth = now()->month;
+    $month = $request->input('month', $currentMonth);
 
-        // Ambil laporan dan detail berdasarkan bulan
-        $reports = Report::with(['details.limbah']) // Mengambil detail limbah
-            ->whereMonth('created_at', $month) // Filter berdasarkan bulan laporan
-            ->get();
+    // Mengambil detail yang sesuai dengan laporan di bulan tersebut
+    $details = Details::whereHas('report', function ($query) use ($month) {
+        $query->whereMonth('created_at', $month);
+    })->with('limbah')->get();
 
-        // Inisialisasi data untuk chart
-        $limbahCodes = [];
-        $quantitiesKg = [];
-        $quantitiesDrum = [];
+    $groupedDetails = [];
 
-        // Array untuk mengelompokkan data berdasarkan kode limbah
-        $groupedDetails = [];
+    foreach ($details as $detail) {
+        $limbahCode = $detail->limbah->name;
+        $jenisLimbah = $detail->limbah->jenis_limbah; // Ambil jenis limbah dari relasi limbah
+        $unit = $detail->unit;
 
-        // Ambil detail yang sesuai dengan laporan di bulan tersebut
-        $details = Details::whereHas('report', function ($query) use ($month) {
-            $query->whereMonth('created_at', $month);
-        })->get();
-
-        foreach ($details as $detail) {
-            // Cek apakah kode limbah sudah ada di grup
-            $limbahCode = $detail->limbah->name;
-
-            if (!isset($groupedDetails[$limbahCode])) {
-                // Jika kode limbah belum ada di grup, inisialisasi array untuk qty
-                $groupedDetails[$limbahCode] = [
-                    'limbahCode' => $limbahCode,
-                    'quantitiesKg' => 0,
-                    'quantitiesDrum' => 0
-                ];
-            }
-
-            // Cek unit untuk menentukan ke array mana nilai `qty` akan ditambahkan
-            if (strtolower($detail->unit) === 'kg') {
-                $groupedDetails[$limbahCode]['quantitiesKg'] += $detail->qty; // Jumlahkan kg
-            } elseif (strtolower($detail->unit) === 'drum') {
-                $groupedDetails[$limbahCode]['quantitiesDrum'] += $detail->qty; // Jumlahkan pcs
-            }
+        // Jika belum ada dalam array, inisialisasi dengan qty dan jenis limbah
+        if (!isset($groupedDetails[$limbahCode])) {
+            $groupedDetails[$limbahCode] = [
+                'qty' => 0,
+                'jenis_limbah' => $jenisLimbah,
+                'unit' => $unit,
+            ];
         }
 
-        // Siapkan data untuk chart berdasarkan data yang telah digabungkan
-        foreach ($groupedDetails as $group) {
-            $limbahCodes[] = $group['limbahCode'];
-            $quantitiesKg[] = $group['quantitiesKg'];
-            $quantitiesDrum[] = $group['quantitiesDrum'];
-        }
-
-        // Kembalikan ke view dengan data yang sudah digabungkan
-        return view('pages.website.dashboard', compact('limbahCodes', 'quantitiesKg', 'quantitiesDrum', 'month'));
+        // Tambahkan qty ke dalam data
+        $groupedDetails[$limbahCode]['qty'] += $detail->qty;
     }
+
+    // dd($groupedDetails); // Debugging untuk melihat hasilnya
+
+    // Siapkan data untuk chart
+    $limbahCodes = array_keys($groupedDetails);
+    $quantities = array_column($groupedDetails, 'qty');
+    $jenisLimbah = array_column($groupedDetails, 'jenis_limbah');
+    $unit = array_column($groupedDetails, 'unit');
+
+    return view('pages.website.dashboard', compact('limbahCodes', 'quantities', 'jenisLimbah', 'month', 'groupedDetails'));
+}    
 }
